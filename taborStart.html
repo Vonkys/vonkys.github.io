@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <title>Výcvikový tábor</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f1e6;
+      margin: 0;
+    }
+    header {
+      background-color: #333;
+      color: white;
+      padding: 10px;
+      text-align: center;
+    }
+    .top-section {
+      display: flex;
+      align-items: center;
+      padding: 20px;
+    }
+    .camp-icon {
+      font-size: 64px;
+      margin-right: 20px;
+      filter: grayscale(100%);
+    }
+    .camp-icon.active {
+      filter: none;
+    }
+    .camp-info h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+    .camp-info p {
+      margin: 5px 0 0 0;
+      font-size: 16px;
+    }
+    .train-section {
+      background-color: #ddd;
+      margin: 0 20px 20px 20px;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .unit-list {
+      padding: 20px;
+    }
+    .unit {
+      border: 1px solid #aaa;
+      border-radius: 8px;
+      background-color: white;
+      margin-bottom: 15px;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+    }
+    .unit .emoji {
+      font-size: 48px;
+      margin-right: 15px;
+      filter: grayscale(100%);
+    }
+    .unit.active .emoji {
+      filter: none;
+    }
+    .unit-details h3 {
+      margin: 0;
+      font-size: 20px;
+    }
+    .unit-details p {
+      margin: 3px 0;
+      font-size: 14px;
+    }
+    .queue {
+      margin: 20px;
+      padding: 10px;
+      background: #fff;
+      border: 1px dashed #aaa;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <header>Výcvikový tábor</header>
+
+  <div class="top-section">
+    <div id="campIcon" class="camp-icon">🪖</div>
+    <div class="camp-info">
+      <h1>Výcvikový tábor</h1>
+      <p>Slouží pro výcvik pěchoty.</p>
+    </div>
+  </div>
+
+  <div class="train-section">
+    <h2>Trénink jednotek</h2>
+    <label for="unitSelect">Jednotka:</label>
+    <select id="unitSelect"></select>
+    <input type="number" id="unitCount" value="1" min="1" style="width: 60px;">
+    <button onclick="trainUnit()">Trénovat</button>
+  </div>
+
+  <div class="unit-list" id="unitList"></div>
+
+  <div class="queue">
+    <h3>Probíhající výcvik:</h3>
+    <div id="trainingQueueDisplay"></div>
+  </div>
+
+  <script>
+    const unitData = [
+      {
+        id: "vojin",
+        name: "Vojín",
+        emoji: "🧍‍♂️",
+        cost: [40, 60, 80, 10],
+        time: 35,
+        strength: 40,
+        attack: 40,
+        defInfantry: 40,
+        defCavalry: 30,
+        unlock: { camp: 1, academy: 0 }
+      },
+      {
+        id: "cetar",
+        name: "Četař",
+        emoji: "💪",
+        cost: [80, 100, 110, 20],
+        time: 65,
+        strength: 60,
+        attack: 60,
+        defInfantry: 60,
+        defCavalry: 50,
+        unlock: { camp: 3, academy: 3 }
+      },
+      {
+        id: "major",
+        name: "Major",
+        emoji: "🛡️",
+        cost: [110, 130, 150, 30],
+        time: 94,
+        strength: 80,
+        attack: 80,
+        defInfantry: 100,
+        defCavalry: 60,
+        unlock: { camp: 7, academy: 10 }
+      },
+      {
+        id: "plukovnik",
+        name: "Plukovník",
+        emoji: "🏋️",
+        cost: [130, 150, 180, 50],
+        time: 115,
+        strength: 110,
+        attack: 110,
+        defInfantry: 100,
+        defCavalry: 100,
+        unlock: { camp: 12, academy: 15 }
+      },
+      {
+        id: "general",
+        name: "Generál",
+        emoji: "🧠",
+        cost: [200, 300, 300, 70],
+        time: 143,
+        strength: 150,
+        attack: 150,
+        defInfantry: 130,
+        defCavalry: 80,
+        unlock: { camp: 20, academy: 20 }
+      }
+    ];
+
+    let trainingQueue = [];
+
+    function loadLevels() {
+      const data = JSON.parse(localStorage.getItem("buildingData")) || {};
+      const campLevel = data.trainCamp?.level || 0;
+      const academyLevel = data.academy?.level || 0;
+      const icon = document.getElementById("campIcon");
+      if (campLevel >= 1) icon.classList.add("active");
+
+      const unitSelect = document.getElementById("unitSelect");
+      const unitList = document.getElementById("unitList");
+      unitSelect.innerHTML = "";
+      unitList.innerHTML = "";
+
+      unitData.forEach(unit => {
+        const unlocked = campLevel >= unit.unlock.camp && academyLevel >= unit.unlock.academy;
+
+        const div = document.createElement("div");
+        div.className = "unit" + (unlocked ? " active" : "");
+        div.innerHTML = `
+          <div class="emoji">${unit.emoji}</div>
+          <div class="unit-details">
+            <h3>${unit.name}</h3>
+            <p><strong>Cena:</strong> Dřevo ${unit.cost[0]}, Hlína ${unit.cost[1]}, Železo ${unit.cost[2]}, Obilí ${unit.cost[3]}</p>
+            <p><strong>Útok:</strong> ${unit.attack} | <strong>Obrana:</strong> Pěchota ${unit.defInfantry}, Jízda ${unit.defCavalry}</p>
+            <p><strong>Celková síla:</strong> ${unit.strength}</p>
+            ${!unlocked ? `<p style="color:red;"><em>Vyžaduje: Tábor level ${unit.unlock.camp}, Škola level ${unit.unlock.academy}</em></p>` : ""}
+          </div>
+        `;
+        unitList.appendChild(div);
+
+        if (unlocked) {
+          const opt = document.createElement("option");
+          opt.value = unit.id;
+          opt.textContent = unit.name;
+          unitSelect.appendChild(opt);
+        }
+      });
+
+      loadTrainingQueue();
+    }
+
+    function trainUnit() {
+      const unitId = document.getElementById("unitSelect").value;
+      const count = parseInt(document.getElementById("unitCount").value);
+      if (count <= 0) return;
+
+      const unit = unitData.find(u => u.id === unitId);
+      if (!unit) return;
+
+      const resources = JSON.parse(localStorage.getItem("resources")) || { wood: 0, clay: 0, iron: 0, crop: 0 };
+      const totalCost = unit.cost.map(c => c * count);
+      if (resources.wood < totalCost[0] || resources.clay < totalCost[1] || resources.iron < totalCost[2] || resources.crop < totalCost[3]) {
+        alert("Nedostatek surovin!");
+        return;
+      }
+
+      resources.wood -= totalCost[0];
+      resources.clay -= totalCost[1];
+      resources.iron -= totalCost[2];
+      resources.crop -= totalCost[3];
+      localStorage.setItem("resources", JSON.stringify(resources));
+
+      const now = Date.now();
+      const totalTime = unit.time * count * 1000;
+      trainingQueue.push({ unitId: unit.id, count, endTime: now + totalTime });
+      saveTrainingQueue();
+    }
+
+    function saveTrainingQueue() {
+      localStorage.setItem("trainingQueue", JSON.stringify(trainingQueue));
+    }
+
+    function loadTrainingQueue() {
+      trainingQueue = JSON.parse(localStorage.getItem("trainingQueue")) || [];
+      updateTrainingDisplay();
+    }
+
+    function updateTrainingDisplay() {
+      const container = document.getElementById("trainingQueueDisplay");
+      container.innerHTML = "";
+
+      const now = Date.now();
+      trainingQueue = trainingQueue.filter(item => {
+        if (now >= item.endTime) {
+          const units = JSON.parse(localStorage.getItem("units")) || {};
+          units[item.unitId] = (units[item.unitId] || 0) + item.count;
+          localStorage.setItem("units", JSON.stringify(units));
+          return false;
+        }
+        return true;
+      });
+
+      trainingQueue.forEach(item => {
+        const unit = unitData.find(u => u.id === item.unitId);
+        const remaining = Math.floor((item.endTime - now) / 1000);
+        const m = String(Math.floor(remaining / 60)).padStart(2, "0");
+        const s = String(remaining % 60).padStart(2, "0");
+        const div = document.createElement("div");
+        div.textContent = `${item.count}× ${unit.name} – ${m}:${s}`;
+        container.appendChild(div);
+      });
+
+      saveTrainingQueue();
+    }
+
+    setInterval(updateTrainingDisplay, 1000);
+    document.addEventListener("DOMContentLoaded", loadLevels);
+  </script>
+</body>
+</html>
