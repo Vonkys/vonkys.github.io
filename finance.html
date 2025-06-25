@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <title>Drunk - Punk</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f8f8fa; margin: 0; padding: 0; }
+    h1 { text-align: center; color: #208278; margin-top: 80px; }
+    .nav-bar { position: fixed; top: 0; left: 0; width: 100vw; background: #2196f3; color: white;
+      display: flex; justify-content: flex-end; gap: 2px; z-index: 1000; box-shadow: 0 2px 8px #0002; padding: 7px 0; }
+    .nav-link { color: white; padding: 7px 24px; text-decoration: none; font-weight: bold; font-size: 1.07em;
+      border-radius: 0 0 10px 10px; transition: background 0.18s; display: flex; align-items: center; gap: 6px; }
+    .nav-link.active, .nav-link:hover { background: #1760a3; }
+    .container { max-width: 430px; margin: 18px auto 0 auto; background: #fff; border-radius: 14px;
+      box-shadow: 0 2px 16px #b7d9db35; padding: 23px 18px 18px 18px;}
+    
+    .item-row { display: flex; align-items: center; border-bottom: 1px solid #eee;
+      padding: 8px 0; font-size: 1.08em;}
+    .item-row:last-child { border-bottom: none; }
+    .item-emoji { font-size: 1.17em; margin-right:7px;}
+    .item-label { flex: 1; }
+    .item-val { min-width: 36px; text-align: right; font-variant-numeric: tabular-nums; margin-left: 12px;}
+    .sell-btn { margin-left: 10px; background: #2196f3; color: white; border: none;
+      border-radius: 5px; padding: 4px 10px; font-weight: bold; cursor: pointer;}
+    .sell-btn:hover { background: #1760a3;}
+    .msg { text-align: center; margin: 10px auto 0 auto; font-size: 1.1em; color: #1760a3; }
+   @media (max-width:600px){
+  .container{padding:10px;}
+  .nav-link{padding:7px 8px;font-size:1em;}
+   .nav-bar{flex-wrap:wrap; justify-content:center;}  /* TADY! */
+  body { padding-top: 90px; }
+}
+
+  </style>
+</head>
+<body>
+  <div class="nav-bar">
+   <a href="pestovani.html" class="nav-link">🌱 Grow Sh*t</a>
+<a href="vyroba.html" class="nav-link">⚗️ Brewing</a>
+<a href="jzd.html" class="nav-link">🐷 Coop</a>
+<a href="sklad.html" class="nav-link">📦 Stash</a>
+<a href="finance.html" class="nav-link active">💰 Wallet</a>
+<a href="hotel.html" class="nav-link">🏨 Motel</a>
+<a href="pub.html" class="nav-link">🏡 Bar</a>
+<a href="market.html" class="nav-link">🏪 Bazaar</a>
+   </div>
+  <h1>💰 Wallet</h1>
+  <div id="balances" style="text-align:center; margin: 10px 0; font-weight: bold; font-size: 1.2em;">
+ <b>💵 Balance: <span id="money"></span> $<br> 
+  🪙 PI Coins: <span id="pi-balance"></span></b> ϖ
+<!-- Pod zůstatkem (po řádku s PI tokeny) -->
+<div style="text-align:center; margin-top: 12px;">
+  <button id="btn-dobit-pi" style="background:#2196f3; color:white; padding:6px 16px; border-radius:7px; font-weight:bold; cursor:pointer;">
+    Top up ϖ
+  </button>
+  <button id="btn-daily-login" style="background:#4caf50; color:white; padding:6px 16px; border-radius:7px; font-weight:bold; cursor:pointer; margin-left: 8px;">
+    Daily Login
+  </button>
+</div>
+
+<!-- Modal okno -->
+<div id="daily-modal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:white; padding:20px; border-radius:10px; box-shadow:0 0 10px #0005; z-index:2000; text-align:center;">
+
+  <h3>Daily Login</h3>
+
+  <div style="font-size:0.95em; color:#444; margin-bottom: 8px;">
+    Log in for 30 days and earn <b style="color:#4caf50;">100 ϖ</b> 🎁
+  </div>
+
+  <div id="login-timer" style="color:#1760a3; font-weight:bold; font-size: 1em; margin-bottom: 12px;"></div>
+
+
+  <div id="login-days" style="display:grid; grid-template-columns:repeat(6, 1fr); gap:6px; margin:10px 0;"></div>
+
+  <button onclick="closeDailyModal()" style="margin-top:10px; padding:5px 12px;">Close</button>
+</div>
+
+
+
+
+
+</div>
+  <div class="container">
+    
+    <div id="sell-list"></div>
+    <div id="msg" class="msg"></div>
+  </div>
+<script>
+const items = [
+      // Plodiny
+      { key: "pšenice", label: "Wheat", emoji: "🌾" },
+      { key: "chmel", label: "Hops", emoji: "🍃" },
+      { key: "kukuřice", label: "Corn", emoji: "🌽" },
+      { key: "reva", label: "Grapes", emoji: "🍇" },
+      { key: "broskve", label: "Peaches", emoji: "🍊" },
+      { key: "meruňky", label: "Apricots", emoji: "🍑" },
+      { key: "jablko", label: "Apple", emoji: "🍎" },
+      { key: "hrušky",  label: "Pears", emoji: "🍐" },
+      { key: "švestky", label: "Plums", emoji: "🟣" },
+      { key: "mrkev", label: "Carrot", emoji: "🥕" },
+      { key: "brambora", label: "Potatoes", emoji: "🥔" },
+      { key: "rajčata", label: "Tomatoes", emoji: "🍅" },
+      { key: "chilli", label: "Chilli", emoji: "🌶" },
+      { key: "okurky", label: "Cucumbers", emoji: "🥒" },
+      { key: "cibule", label: "Onion", emoji: "🧅" },
+      { key: "česnek", label: "Garlic", emoji: "🧄" },
+      { key: "jahody", label: "Strawberries", emoji: "🍓" },
+      { key: "třešně", label: "Cherries", emoji: "🍒" },
+      // Kvasy a most
+      { key: "kvas_pivo", label: "Beer wort", emoji: "🍺🧪" },
+      { key: "kvas_vino", label: "Wine wort", emoji: "🧃" },
+      { key: "most_cider", label: "Juice", emoji: "🍎🧪" }, 
+      { key: "popkorn", label: "Popcorn", emoji: "🍿" },
+      { key: "hranolky", label: "Fries", emoji: "🍟" },
+      { key: "kvas_švestky", label: "Plum wort", emoji: "🟣🧪" },
+      { key: "kvas_hrušky",  label: "Pear wort", emoji: "🍐🧪" },
+      { key: "kvas_jablka", label: "Apple wort", emoji: "🍏🧪" },
+      { key: "kvas_meruňky", label: "Apricot wort", emoji: "🍑🧪" },
+      { key: "kvas_broskve", label: "Peach wort", emoji: "🍊🧪" },
+      { key: "kvas_kukuřice", label: "Corn wort", emoji: "🌽" },
+      { key: "kvas_psenice",  label: "Wheat wort", emoji: "🌾" },
+      { key: "kvas_brambora", label: "Potatoes wort", emoji: "🥔" },
+      // Výrobky a pálenky
+      { key: "pivo",        label: "Beer", emoji: "🍻" },
+      { key: "vino",        label: "Wine", emoji: "🍷" },
+      { key: "cider",       label: "Cider", emoji: "🍶" }, 
+      { key: "mléko", label: "Milk", emoji: "🥛" },
+      { key: "kozí_mléko", label: "Goat milk", emoji: "🥛" },
+      { key: "vejce", label: "Egg", emoji: "🥚" },
+      { key: "šunka", label: "Ham", emoji: "🍖" },
+      { key: "krůtí_maso", label: "Turkey meat", emoji: "🍗" },
+      { key: "med", label: "Honey", emoji: "🍯" },
+      { key: "vlna", label: "Wool", emoji: "🧶" },
+      { key: "králičí_maso", label: "Rabbit meat", emoji: "🥩" },
+      { key: "kachní_vejce", label: "Duck egg", emoji: "🥚" },
+      { key: "palenka_švestky", label: "Slivovitz", emoji: "🟣🥃" },
+      { key: "palenka_hrušky",  label: "Pear brandy", emoji: "🍐🥃" },
+      { key: "palenka_jablka", label: "Calvados", emoji: "🍏🥃" },
+      { key: "palenka_meruňky", label: "Apricot brandy", emoji: "🍑🥃" },
+      { key: "palenka_broskve", label: "Peach brandy", emoji: "🍊🥃" },
+      { key: "whiskey_kukurice", label: "Whiskey", emoji: "🥃" },
+      { key: "vodka_psenice",    label: "Vodka", emoji: "🍸" },
+      { key: "rum_brambora",     label: "Rum", emoji: "🏴‍☠️" },
+      // ... ostatní položky ...
+      { key: "marmelada_broskve", label: "Peach jam", emoji: "🍊🍯" },
+      { key: "marmelada_meruňky", label: "Apricot jam", emoji: "🍑🍯" },
+      { key: "marmelada_jahody",  label: "Strawberry jam", emoji: "🍓🍯" },
+      { key: "marmelada_třešně",  label: "Cherry jam", emoji: "🍒🍯" },
+      { key: "marmelada_švestky", label: "Plum jam", emoji: "🟣🍯" },
+      { key: "marmelada_hrušky",  label: "Pear jam", emoji: "🍐🍯" },
+      { key: "marmelada_jablko",  label: "Apple jam", emoji: "🍏🍯" },
+
+    ];
+
+// Výchozí ceny
+const defaultPrices = {
+  pšenice: 4, chmel: 9, kukuřice: 12, reva: 12, broskve: 20, meruňky: 18, jablko: 13, hrušky: 13, švestky: 13, mrkev: 9, brambora: 11,  rajčata: 12, chilli: 15, okurky: 13,
+  cibule: 14, česnek: 16, jahody: 25, třešně: 15,
+  kvas_pivo: 18, kvas_vino: 45, most_cider: 50,
+  kvas_švestky: 17, kvas_hrušky: 15, kvas_meruňky: 18, kvas_broskve: 19, kvas_jablka: 15, kvas_psenice: 12, kvas_kukuřice: 14, kvas_brambora: 15,
+  pivo: 32, vino: 60, cider: 70, popkorn: 50, hranolky: 60,
+  mléko: 30, kozí_mléko: 45, vejce: 15, šunka: 45, krůtí_maso: 30, med: 45, vlna: 60, kachní_vejce: 30, králičí_maso: 45,
+  palenka_švestky: 46, palenka_hrušky: 44, palenka_meruňky: 48, palenka_broskve: 50, palenka_jablka: 44, vodka_psenice: 35, whiskey_kukurice: 40, rum_brambora: 42, 
+  marmelada_broskve: 70, marmelada_meruňky: 65, marmelada_jahody: 70, marmelada_třešně: 68, marmelada_švestky: 67, marmelada_hrušky: 64, marmelada_jablko: 63,
+
+};
+const prices = {...defaultPrices};
+
+
+// Nové: Definice zvířat pro prodej (stejné ceny jako obchod/JZD!)
+const animalDefs = {
+  slepice: { nazev: "Hen", emoji: "🐔", cena: 100 },
+  kachna:  { nazev: "Duck", emoji: "🦆", cena: 200 },
+  krocan:  { nazev: "Turkey", emoji: "🦃", cena: 200 },
+  králík:  { nazev: "Rabbit", emoji: "🐇", cena: 300 },
+  ovce:    { nazev: "Sheep",   emoji: "🐑", cena: 500 },
+  prase:   { nazev: "Pig", emoji: "🐷", cena: 500 },
+  koza:    { nazev: "Goat", emoji: "🐐", cena: 700 },
+  krava:   { nazev: "Cow", emoji: "🐮", cena: 1000 },
+  vcela:   { nazev: "Bee", emoji: "🐝", cena: 700 }
+ 
+}; 
+if (!localStorage.getItem("lihobaronFarmXP")) {
+  localStorage.setItem("lihobaronFarmXP", 0);
+}
+if (!localStorage.getItem("lihobaronFarmCoins")) {
+  localStorage.setItem("lihobaronFarmCoins", 200);
+}
+if (!localStorage.getItem("lihobaronPi")) {
+  localStorage.setItem("lihobaronPi", 200);
+}
+// Načtení zůstatku
+function getMoney() {
+  return +(localStorage.getItem("lihobaronFarmCoins") || 0);
+}
+function setMoney(v) {
+  document.getElementById("money").textContent = v;
+  localStorage.setItem("lihobaronFarmCoins", v);
+}
+function getPi() {
+  let val = localStorage.getItem("lihobaronPi");
+  if (!val) return 0;
+  try {
+    return JSON.parse(val);
+  } catch (e) {
+    console.warn("Chyba při parsování lihoPi:", e);
+    return 0;
+  }
+}
+
+function setPi(v) {
+  document.getElementById("pi-balance").textContent = v;
+  localStorage.setItem("lihobaronPi", JSON.stringify(v));
+}
+
+// Výpis výrobků (prodávané zboží)
+function renderSellList() {
+  setMoney(getMoney());
+  setPi(getPi());
+  let sklad = JSON.parse(localStorage.getItem("lihobaronFarmStorage") || "{}");
+  let html = "";
+  items.forEach((item, idx) => {
+    let val = sklad[item.key] || 0;
+    if (val > 0) {
+      html += `<div class="item-row" style="align-items: flex-start;">
+        <span class="item-emoji" style="margin-top:7px;">${item.emoji}</span>
+        <span class="item-label" style="min-width:90px;">${item.label}</span>
+        <div style="margin-left:auto;text-align:right;">
+          <div style="font-size:0.97em;color:#888;">Amount: <b>${val}</b></div>
+          <div style="font-size:0.97em;color:#888;">Price: ${prices[item.key]} $</div>
+          <button class="sell-btn" style="margin-top:6px;" onclick="sell(${idx})">Sell 1</button>
+          <button class="sell-btn" style="margin-top:3px;" onclick="sellAll(${idx})">Sell all</button>
+        </div>
+      </div>`;
+    }
+  });
+  if (!html) html = "<div style='text-align:center;color:#aaa;margin-top:17px;'>You have nothing to sell!<br>Plant, grow, brew or distill some slivovitz!</div>";
+  document.getElementById("sell-list").innerHTML = html;
+  renderZvirataList();
+}
+const LOGIN_KEY = "lihoDailyLogin";
+const MAX_DAYS = 30;
+
+// Inicializace login progressu
+function initDailyLogin() {
+  const raw = localStorage.getItem(LOGIN_KEY);
+  let data = raw ? JSON.parse(raw) : { days: [], last: null };
+
+  const now = new Date();
+  const todayStr = now.toDateString();
+  const container = document.getElementById("login-days");
+  container.innerHTML = "";
+
+  for (let i = 0; i < MAX_DAYS; i++) {
+    const div = document.createElement("div");
+    div.textContent = i + 1;
+    div.style.padding = "10px";
+    div.style.borderRadius = "50%";
+    div.style.textAlign = "center";
+    div.style.background = data.days.includes(i) ? "#4caf50" : "#ccc";
+    div.style.color = "white";
+    container.appendChild(div);
+  }
+
+  const btn = document.getElementById("btn-daily-login");
+  const timerDiv = document.getElementById("login-timer");
+  const last = data.last ? new Date(data.last) : null;
+  const isNewDay = !last || last.toDateString() !== todayStr;
+
+  if (data.days.length === MAX_DAYS) {
+    alert("✅ Reward unlocked! +100 ϖ");
+    setPi(getPi() + 100);
+    data = { days: [], last: now.getTime() };
+    localStorage.setItem(LOGIN_KEY, JSON.stringify(data));
+    return initDailyLogin(); // restart po odměně
+  }
+
+  if (isNewDay) {
+    btn.textContent = "Daily Login";
+    timerDiv.textContent = "";
+  } else {
+    btn.textContent = "Already claimed";
+
+    // Vypočítej čas do půlnoci
+    const midnight = new Date();
+    midnight.setHours(24, 0, 1, 0); // 00:00:01 dalšího dne
+    const msLeft = midnight - now;
+
+    // Odpočítávání
+    function updateCountdown() {
+      const sec = Math.floor((midnight - new Date()) / 1000);
+      if (sec <= 0) {
+        timerDiv.textContent = "You can now claim again!";
+        initDailyLogin(); // refresh UI
+        return;
+      }
+      const h = Math.floor(sec / 3600);
+      const m = Math.floor((sec % 3600) / 60);
+      const s = sec % 60;
+      timerDiv.textContent = `⏳ Next login in ${h}h ${m}m ${s}s`;
+      setTimeout(updateCountdown, 1000);
+    }
+
+    updateCountdown();
+  }
+}
+
+// Vždycky otevře modal a přidá login jen pokud je nový den
+document.getElementById("btn-daily-login").addEventListener("click", function () {
+  const raw = localStorage.getItem(LOGIN_KEY);
+  let data = raw ? JSON.parse(raw) : { days: [], last: null };
+
+  const now = new Date();
+  const last = data.last ? new Date(data.last) : null;
+  const isNewDay = !last || last.toDateString() !== now.toDateString();
+
+  if (isNewDay) {
+    data.days.push(data.days.length);
+    data.last = now.getTime();
+    localStorage.setItem(LOGIN_KEY, JSON.stringify(data));
+  }
+
+  document.getElementById("daily-modal").style.display = "block";
+  initDailyLogin();
+});
+
+
+
+function closeDailyModal() {
+  document.getElementById("daily-modal").style.display = "none";
+}
+
+
+// Prodej výrobků (starý)
+function sell(idx) {
+  let sklad = JSON.parse(localStorage.getItem("lihobaronFarmStorage") || "{}");
+  let item = items[idx];
+  if ((sklad[item.key]||0) < 1) { showMsg("Nothing to sell!"); return; }
+  sklad[item.key]--;
+  localStorage.setItem("lihobaronFarmStorage", JSON.stringify(sklad));
+  let coins = getMoney() + prices[item.key];
+  setMoney(coins);
+  showMsg(`Sold 1× ${item.label} for ${prices[item.key]} $`);
+  renderSellList();
+}
+function sellAll(idx) {
+  let sklad = JSON.parse(localStorage.getItem("lihobaronFarmStorage") || "{}");
+  let item = items[idx];
+  let count = sklad[item.key]||0;
+  if (count < 1) { showMsg("Nothing to sell!"); return; }
+  sklad[item.key]=0;
+  localStorage.setItem("lihobaronFarmStorage", JSON.stringify(sklad));
+  let coins = getMoney() + prices[item.key]*count;
+  setMoney(coins);
+  showMsg(`Sell ${count}× ${item.label} for ${prices[item.key]*count} $`);
+  renderSellList();
+}
+
+// === Prodej zvířat (nová sekce pod výrobky) ===
+
+function pocetZvirat(typ) {
+  let animals = JSON.parse(localStorage.getItem("lihobaronZvirata") || "[]");
+  return animals.filter(z => z.typ === typ && !z.mrtve).length;
+}
+function prodatZvire(typ) {
+  let animals = JSON.parse(localStorage.getItem("lihobaronZvirata") || "[]");
+  let idx = animals.findIndex(z => z.typ === typ && !z.mrtve);
+  if (idx > -1) {
+    animals.splice(idx, 1);
+    localStorage.setItem("lihobaronZvirata", JSON.stringify(animals));
+    let coins = getMoney() + animalDefs[typ].cena;
+    setMoney(coins);
+    showMsg(`Sold 1× ${animalDefs[typ].nazev} za ${animalDefs[typ].cena} $`);
+    renderSellList();
+  } else {
+    showMsg("No animal to sell!");
+  }
+}
+function renderZvirataList() {
+  let html = "";
+  Object.keys(animalDefs).forEach(key => {
+    let pocet = pocetZvirat(key);
+    if (pocet > 0) {
+      html += `<div class="item-row">
+        <span class="item-emoji">${animalDefs[key].emoji}</span>
+        <span class="item-label">${animalDefs[key].nazev}</span>
+        <div style="margin-left:auto;text-align:right;">
+          <div style="font-size:0.98em; color:#888;">Count: <b>${pocet}</b></div>
+          <div style="font-size:0.98em; color:#888;">Cena: ${animalDefs[key].cena} $</div>
+          <button class="sell-btn" onclick="prodatZvire('${key}')">Sell 1</button>
+        </div>
+      </div>`;
+    }
+  });
+  if (!html) html = "<div style='text-align:center;color:#aaa;margin-top:17px;'>No animals to sell!</div>";
+  document.getElementById("sell-list").insertAdjacentHTML('beforeend', `<div style='margin-top:24px;'><b>🐮 Animal sales</b></div>` + html);
+}
+
+
+// Zpráva
+function showMsg(msg) {
+  document.getElementById("msg").textContent = msg;
+  setTimeout(()=>document.getElementById("msg").textContent="",1800);
+}
+document.getElementById("btn-dobit-pi").onclick = function() {
+  var heslo = prompt("Enter password to top up PI tokens:");
+  if (heslo === "1893") {  // sem dej své tajné heslo!
+    setPi(getPi() + 600);
+    alert("600 PI added!");
+  } else {
+    alert("Wrong password!");
+  }
+};
+
+
+renderSellList();
+initDailyLogin();
+
+</script>
+</body>
+</html>

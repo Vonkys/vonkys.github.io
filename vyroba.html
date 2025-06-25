@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8"/>
+  <title>Drunk - Punk</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #e1fcff 0%, #fef6fa 100%);
+      margin: 0; padding: 0;
+      text-align: center;
+    }
+    .nav-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      background: #2196f3;
+      color: white;
+      display: flex;
+      justify-content: flex-end;
+      gap: 2px;
+      z-index: 1000;
+      box-shadow: 0 2px 8px #0002;
+      padding: 7px 0;
+    }
+    .nav-link {
+      color: white;
+      padding: 7px 24px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 1.07em;
+      border-radius: 0 0 10px 10px;
+      transition: background 0.18s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .nav-link.active, .nav-link:hover { background: #1760a3; }
+    body { padding-top: 48px; }
+     h1 { margin: 16px 0 7px 0; color: #208278; font-size: 3.35em;}
+    .desc { color: #397b70; margin-bottom: 32px; font-size: 2.12em; }
+    .vyroba-menu {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 28px;
+      max-width: 700px;
+      margin: 0 auto 44px auto;
+      padding: 0 8px;
+    }
+    .vyroba-link {
+      background: #fff;
+      border-radius: 17px;
+      box-shadow: 0 2px 20px #b7d9db44;
+      padding: 36px 0 28px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      color: #2196f3;
+      font-size: 1.15em;
+      font-weight: 700;
+      transition: transform 0.14s, box-shadow 0.14s, background 0.17s;
+      border: 3px solid #e5eef0;
+      position: relative;
+      overflow: hidden;
+    }
+    .vyroba-link:hover, .vyroba-link:focus {
+      transform: scale(1.045);
+      background: #e1fcff;
+      box-shadow: 0 4px 26px #1da8ce44;
+      color: #1760a3;
+      border-color: #b7e0ed;
+    }
+    .vyroba-icon {
+      font-size: 2.9em;
+      margin-bottom: 10px;
+      margin-top: 2px;
+      text-shadow: 0 2px 12px #94c4d940;
+      filter: drop-shadow(0 2px 7px #b7e0ed44);
+    }
+    @media (max-width:600px) {
+      body { padding-top: 90px; }
+      .nav-bar { justify-content: center; flex-wrap: wrap; font-size: 0.97em; }
+      .nav-link { padding: 7px 8px; font-size: 1em; }
+      .vyroba-menu { grid-template-columns: 1fr; gap: 18px; }
+      .vyroba-link { padding: 27px 0 21px 0; font-size: 1em;}
+      h1 { font-size: 3.05em; margin: 28px 0 11px 0;}
+      .desc { font-size: 1em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="nav-bar">
+    <a href="pestovani.html" class="nav-link">🌱 Grow Sh*t</a>
+<a href="vyroba.html" class="nav-link active">⚗️ Brewing</a>
+<a href="jzd.html" class="nav-link">🐷 Coop</a>
+<a href="sklad.html" class="nav-link">📦 Stash</a>
+<a href="finance.html" class="nav-link">💰 Wallet</a>
+<a href="hotel.html" class="nav-link">🏨 Motel</a>
+<a href="pub.html" class="nav-link">🏡 Bar</a>
+<a href="market.html" class="nav-link">🏪 Bazaar</a>
+  </div>
+  <h1>⚗️ Brewing</h1>
+  <div class="desc">
+    Choose the type of brewing you wanna open!<br>
+   </div>
+  <div class="vyroba-menu">
+    <a href="vyroba-pivovar.html" class="vyroba-link">
+      <span class="vyroba-icon">🍺</span>
+      Brewery
+    </a>
+    <a href="vyroba-vinohrad.html" class="vyroba-link">
+      <span class="vyroba-icon">🍇</span>
+      Vineyard
+    </a>
+    <a href="vyroba-lihovar.html" class="vyroba-link">
+      <span class="vyroba-icon">🥃</span>
+      Distillery
+    </a>
+    <a href="vyroba-kuchyne.html" class="vyroba-link">
+      <span class="vyroba-icon">🍿</span>
+      Kitchen
+    </a>
+  </div>
+</body>
+</html>

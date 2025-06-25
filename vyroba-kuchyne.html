@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8"/>
+  <title>Drunk - Punk</title>
+   <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #fef6fa 0%, #e1fcff 100%);
+      margin: 0; padding: 0; text-align: center;
+    }
+    .nav-bar {
+      position: fixed;
+      top: 0; left: 0; width: 100vw;
+      background: #2196f3; color: white;
+      display: flex; justify-content: flex-end; gap: 2px;
+      z-index: 1000; box-shadow: 0 2px 8px #0002; padding: 7px 0;
+    }
+    .nav-link {
+      color: white; padding: 7px 24px; text-decoration: none;
+      font-weight: bold; font-size: 1.07em; border-radius: 0 0 10px 10px;
+      transition: background 0.18s; display: flex; align-items: center; gap: 6px;
+    }
+    .nav-link.active, .nav-link:hover { background: #1760a3; }
+    body { padding-top: 48px; }
+    .zpet-link {
+      display: inline-block;
+      margin: 20px 0 4px 0;
+      color: #1760a3;
+      background: #e9f6fd;
+      padding: 7px 17px;
+      border-radius: 9px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 1.08em;
+      box-shadow: 0 1px 8px #bbe8fd44;
+      transition: background 0.13s, color 0.13s;
+    }
+    .zpet-link:hover { background: #b7e0ed; color: #124061; }
+    h2 { margin: 16px 0 7px 0; color: #208278; font-size: 2.35em;}
+    .section-title { color: #217c5e; font-size: 1.30em; margin-bottom: 8px; font-weight: 700; letter-spacing: 1px; }
+    .status { color:#b24b4b; font-weight:600; margin-bottom:10px;}
+    .success { color:#217c5e; }
+    .prod-btn {
+      background: #37af7b; color: #fff; border: none;
+      border-radius: 7px; font-size: 1em; margin: 6px 0 10px 0;
+      padding: 5px 20px; cursor: pointer;
+    }
+    .prod-btn:hover { background: #136652; }
+    .prod-btn[disabled] { background: #9dbdae; cursor: not-allowed;}
+    .machines-list {margin-bottom:14px;}
+    .machines-list span {background:#e9dcb4;border-radius:7px;padding:5px 14px 4px 11px;font-size:1em;margin:0 7px 5px 0;display:inline-block;}
+    .need {color:#b24b4b;}
+    .has {color:#217c5e;}
+    .progress-container {
+      width: 100%; background-color: #e0e0e0; border-radius: 8px; height: 12px;
+      margin-top: 8px; position: relative; overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%; background-color: #37af7b; width: 0%; transition: width 1s linear;
+    }
+    .progress-text {
+      font-size: 0.97em; margin-top: 6px; color: #555; font-weight: bold; text-align: center;
+    }
+    @media (max-width:900px) {
+      .nav-bar { font-size: 0.97em;}
+    }
+    @media (max-width:600px){
+      body { padding-top: 90px; }
+      .nav-bar { justify-content: center; flex-wrap: wrap; font-size: 0.97em; }
+      .nav-link { padding:7px 8px;font-size:1em; }
+      h2 { font-size: 2.1em; }
+      .zpet-link { padding: 7px 6vw; font-size:1em;}
+    }
+  </style>
+</head>
+<body>
+  <div class="nav-bar">
+    <a href="pestovani.html" class="nav-link">🌱 Grow Sh*t</a>
+<a href="vyroba.html" class="nav-link active">⚗️ Brewing</a>
+<a href="jzd.html" class="nav-link">🐷 Coop</a>
+<a href="sklad.html" class="nav-link">📦 Stash</a>
+<a href="finance.html" class="nav-link">💰 Wallet</a>
+<a href="hotel.html" class="nav-link">🏨 Motel</a>
+<a href="pub.html" class="nav-link">🏡 Bar</a>
+<a href="market.html" class="nav-link">🏪 Bazaar</a>
+  </div>
+  <a href="vyroba.html" class="zpet-link">← Back to Production</a>
+  <h2>🍽 Kitchen</h2>
+ <div id="balances" style="text-align:center; margin: 10px 0; font-weight: bold; font-size: 1.2em;">
+ <b>💵 Balance: <span id="stavPrachy"></span><br>
+  🪙 PI Coins: <span id="pi-balance"></span></b> ϖ
+</div>
+  <div id="machinesSection"></div>
+  <div id="kuchyneSection"></div>
+  <div id="hranolkySection"></div>
+  <div id="marmeladySection"></div>
+  <div id="vyrobaStatus"></div>
+  <script>
+    if (!localStorage.getItem("lihobaronFarmStorage")) {
+  localStorage.setItem("lihobaronFarmStorage", JSON.stringify({
+    pšenice: 0, chmel: 0, kukuřice: 0, reva: 0, jablko: 0, hrušky: 0, švestky: 0,
+    meruňky: 0, broskve: 0, mrkev: 0, brambora: 0, rajčata: 0, chilli: 0,
+    okurky: 0, třešně: 0, cibule: 0, česnek: 0, jahody: 0
+  }));
+}
+if (!localStorage.getItem("lihobaronFarmSeeds")) {
+  localStorage.setItem("lihobaronFarmSeeds", JSON.stringify({
+    pšenice: 0, chmel: 0, kukuřice: 0, reva: 0, jablko: 0, hruška: 0, švestka: 0,
+    meruňka: 0, broskev: 0, mrkev: 0, brambora: 0, rajčata: 0, chilli: 0,
+    okurky: 0, třešně: 0, cibule: 0, česnek: 0, jahody: 0
+  }));
+}
+if (!localStorage.getItem("lihobaronFarmXP")) {
+  localStorage.setItem("lihobaronFarmXP", 0);
+}
+if (!localStorage.getItem("lihobaronFarmCoins")) {
+  localStorage.setItem("lihobaronFarmCoins", 200);
+}
+if (!localStorage.getItem("lihobaronPi")) {
+  localStorage.setItem("lihobaronPi", 200);
+}
+
+function getPi() {
+  return JSON.parse(localStorage.getItem("lihobaronPi") || "0");
+}
+
+function renderPiBalance() {
+  document.getElementById("pi-balance").textContent = getPi();
+} 
+// --- Datové a pomocné funkce ---
+    function load(key, def) { try { var d=localStorage.getItem(key); if(!d)return def; return JSON.parse(d);}catch{return def;} }
+    function save(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+    function getMoney() { return load("lihobaronFarmCoins", 0);}
+    function setMoney(m) { save("lihobaronFarmCoins", m);}
+    function getSklad() { return load("lihobaronFarmStorage", {});}
+    function setSklad(s) { save("lihobaronFarmStorage", s);}
+    function getMachines() { return load("lihobaronMachines", []);}
+    function setMachines(arr) { save("lihobaronMachines", arr);}
+    function getProductions() { return load("lihobaronProductions", []);}
+    function setProductions(arr) { save("lihobaronProductions", arr); }
+    function stavPrachy() { document.getElementById("stavPrachy").innerText = getMoney()+" $"; }
+    function vypisStatus(txt,ok){ var e=document.getElementById("vyrobaStatus"); e.innerHTML="<span class='"+(ok?"success":"status")+"'>"+txt+"</span>"; setTimeout(function(){e.innerHTML='';},2300); }
+
+ 
+// --- Stroje ---
+var KUCHYNE_MACHINES = [
+  { key:"stroj_popkorn", name:"Popcorn Machine 🍿", price: 800 },
+  { key:"fritak", name:"Fryer 🍟", price: 1500 },
+  { key:"hrnec_marmelada", name:"Jam Pot 🍯", price: 2700 } // <-- přidáno sem!
+];
+
+    function renderMachinesShopKuchyne() {
+      var machines = getMachines();
+      var html = "<div class='section-title'>🛒 Machines Shop</div>";
+      html += "<div class='machines-list'>";
+      for(var i=0; i<KUCHYNE_MACHINES.length; i++){
+        var m = KUCHYNE_MACHINES[i];
+        if (machines.indexOf(m.key) !== -1) {
+          html += "<span class='has'>" + m.name + " ✔</span>";
+        } else {
+          html += "<span class='need'>" + m.name + " (" + m.price + " $) " +
+            "<button class='prod-btn' onclick=\"kupitStrojKuchyne('" + m.key + "'," + m.price + ")\">Buy</button></span>";
+        }
+      }
+      html += "</div>";
+      document.getElementById("machinesSection").innerHTML = html;
+    }
+    function kupitStrojKuchyne(key, cena) {
+      var machines = getMachines();
+      var money = getMoney();
+      if (machines.indexOf(key) !== -1) { vypisStatus("SYou already have this machine!",0); return; }
+      if (money < cena) { alert("Not enough money!"); return; }
+      machines.push(key);
+      setMachines(machines);
+      setMoney(money-cena);
+      vypisStatus("Machine purchased!",1);
+      stavPrachy();
+      renderMachinesShopKuchyne();
+      vykresliKuchyni();
+      vykresliHranolky();
+      vykresliMarmelady();
+    }
+
+    // --- Výroba popcornu ---
+    // ... předchozí kód (localStorage, helpers, stroje, kupování) beze změny
+
+// --- Výroba popcornu ---
+function vykresliKuchyni() {
+  var machines = getMachines();
+  var sklad = getSklad();
+  var prods = getProductions();
+  var html = "<div class='section-title'>🍿 Popcorn Production</div>";
+  if (machines.indexOf("stroj_popkorn") === -1) {
+    html += "<span class='need'>Buy a popcorn machine first!</span>";
+  } else {
+    var kuku = sklad["kukuřice"] || 0;
+    var popkorn = sklad["popkorn"] || 0;
+    var prod = prods.find(function(p){ return p.type==="popkorn" && !p.collected; });
+    html += "<div><b>Corn:</b> <span class='has'>" + kuku + " ks</span><br>";
+    html += "<b>Popcorn:</b> <span class='has'>" + popkorn + " ks</span><br></div>";
+
+    if (prod) {
+      if (prod.ready) {
+        html += "<button class='prod-btn' onclick=\"sebratVyrobuKuchyne('popkorn')\">Collect</button>";
+      } else {
+        html += renderProgress(prod, "popkorn");
+      }
+    } else if (kuku>=2) {
+      html += "<button class='prod-btn' onclick='zacniPopkorn()'>Make popcorn (2× 🌽 → 1× 🍿)</button>";
+    } else {
+      html += "<span class='need'>You need at least 2 corn!</span>";
+    }
+  }
+  document.getElementById("kuchyneSection").innerHTML = html;
+}
+
+// --- Výroba hranolek ---
+function vykresliHranolky() {
+  var machines = getMachines();
+  var sklad = getSklad();
+  var prods = getProductions();
+  var html = "<div class='section-title'>🍟 Fries Production</div>";
+  if (machines.indexOf("fritak") === -1) {
+    html += "<span class='need'>Buy a fryer first!</span>";
+  } else {
+    var brambora = sklad["brambora"] || 0;
+    var hranolky = sklad["hranolky"] || 0;
+    var prod = prods.find(function(p){ return p.type==="hranolky" && !p.collected; });
+    html += "<div><b>Potatoes:</b> <span class='has'>" + brambora + " ks</span><br>";
+    html += "<b>Fries:</b> <span class='has'>" + hranolky + " ks</span><br></div>";
+
+    if (prod) {
+      if (prod.ready) {
+        html += "<button class='prod-btn' onclick=\"sebratVyrobuKuchyne('hranolky')\">Collect</button>";
+      } else {
+        html += renderProgress(prod, "hranolky");
+      }
+    } else if (brambora>=2) {
+      html += "<button class='prod-btn' onclick='zacniHranolky()'>Make fries (2× 🥔 → 1× 🍟)</button>";
+    } else {
+      html += "<span class='need'>You need at least 2 potatoes!</span>";
+    }
+  }
+  document.getElementById("hranolkySection").innerHTML = html;
+}
+
+// --- Spouštění výroby (beze změny) ---
+function zacniPopkorn() {
+  var sklad = getSklad();
+  var prods = getProductions();
+  if ((sklad["kukuřice"]||0)<2) { vypisStatus("Not enough corn!",0); return; }
+  if (prods.find(p => p.type==="popkorn" && !p.collected)) {
+    vypisStatus("Popcorn is already in progress!",0); return;
+  }
+  sklad["kukuřice"] -= 2;
+  prods.push({ type: "popkorn", started: Date.now(), duration: 256, ready: false, collected: false });
+  setSklad(sklad); setProductions(prods);
+  vykresliKuchyni(); runProductionTimers();
+}
+
+function zacniHranolky() {
+  var sklad = getSklad();
+  var prods = getProductions();
+  if ((sklad["brambora"]||0)<2) { vypisStatus("Not enough potatoes!",0); return; }
+  if (prods.find(p => p.type==="hranolky" && !p.collected)) {
+    vypisStatus("Fries are already frying!",0); return;
+  }
+  sklad["brambora"] -= 2;
+  prods.push({ type: "hranolky", started: Date.now(), duration: 425, ready: false, collected: false });
+  setSklad(sklad); setProductions(prods);
+  vykresliHranolky(); runProductionTimers();
+}
+
+// --- MARMELÁDY --- //
+
+var MARMELADA_OVOCE = [
+  { key: "broskve", name: "Peach jam 🍊" },
+  { key: "meruňky", name: "Apricot jam 🍑" },
+  { key: "jahody", name: "Strawberry jam 🍓" },
+  { key: "třešně", name: "Cherry jam 🍒" },
+  { key: "švestky", name: "Plum jam 🟣" },
+  { key: "hrušky", name: "Pear jam 🍐" },
+  { key: "jablko", name: "Apple jam 🍏" }
+];
+var MARMELADA_TIME = 1350; // sekundy
+
+
+
+
+
+function vykresliMarmelady() {
+  var machines = getMachines();
+  var sklad = getSklad();
+  var prods = getProductions();
+  var html = "";
+
+  // Nadpis sekce - vždy viditelný!
+  html += "<div class='section-title'>🍯 Jam Production</div>";
+
+  if (machines.indexOf("hrnec_marmelada") === -1) {
+    // Když nemáš stroj, vypiš jen hlášku
+    html += "<span class='need'>Buy a jam pot first!</span>";
+  } else {
+    // Když máš stroj, zobraz celý ovládání na marmelády
+    html += "<label for='marmeladySelect'><b>Pick fruit:</b></label> ";
+    html += "<select id='marmeladySelect'>";
+    for (var i = 0; i < MARMELADA_OVOCE.length; i++) {
+      var o = MARMELADA_OVOCE[i];
+      html += "<option value='" + o.key + "'>" + o.name + " (" + (sklad[o.key] || 0) + " pcs in stock)</option>";
+    }
+    html += "</select> ";
+    html += "<button class='prod-btn' onclick='zacniMarmeladu()'>Make jam</button><br>";
+    html += "<div id='marmeladyStatus'></div>";
+    html += "<div style='margin-top:10px'><b>Jams in stock:</b><br>";
+    for (var j = 0; j < MARMELADA_OVOCE.length; j++) {
+      var o2 = MARMELADA_OVOCE[j];
+      html += o2.name + ": <span class='has'>" + (sklad['marmelada_' + o2.key] || 0) + " pcs</span><br>";
+    }
+    html += "</div>";
+    html += "<div id='marmeladyProgress'></div>";
+  }
+
+  document.getElementById("marmeladySection").innerHTML = html;
+  vykresliMarmeladyProgress();
+}
+
+
+
+
+function vykresliMarmeladyProgress() {
+  var prods = getProductions();
+  var sklad = getSklad();
+  var html = "";
+  for (var i = 0; i < MARMELADA_OVOCE.length; i++) {
+    var o = MARMELADA_OVOCE[i];
+    var prod = prods.find(p => p.type === "marmelada_" + o.key && !p.collected);
+    if (prod) {
+      html += "<div style='margin-top:5px'>" + o.name + ": ";
+      if (prod.ready) {
+        html += "<button class='prod-btn' onclick=\"sebratVyrobuMarmelady('marmelada_" + o.key + "')\">Collect</button>";
+      } else {
+        html += renderProgress(prod, prod.type);
+      }
+      html += "</div>";
+    }
+  }
+  var e = document.getElementById("marmeladyProgress");
+  if (e) e.innerHTML = html;
+}
+
+function zacniMarmeladu() {
+  var select = document.getElementById("marmeladySelect");
+  var ovoceKey = select.value;
+  var sklad = getSklad();
+  var prods = getProductions();
+  if ((sklad[ovoceKey]||0) < 1) { // ZMĚNA tady
+    document.getElementById("marmeladyStatus").innerHTML = "<span class='need'>Not enough fruit!</span>";
+    return;
+  }
+  if (prods.find(p => p.type === "marmelada_" + ovoceKey && !p.collected)) {
+    document.getElementById("marmeladyStatus").innerHTML = "<span class='need'>Jam is already cooking!</span>";
+    return;
+  }
+  sklad[ovoceKey] -= 1; // ZMĚNA tady
+  prods.push({
+    type: "marmelada_" + ovoceKey,
+    started: Date.now(),
+    duration: MARMELADA_TIME,
+    ready: false,
+    collected: false
+  });
+  setSklad(sklad);
+  setProductions(prods);
+  vykresliMarmelady();
+  runProductionTimers();
+}
+
+
+
+function sebratVyrobuMarmelady(type) {
+  var prods = getProductions();
+  var sklad = getSklad();
+  var found = false;
+  prods = prods.filter(function(p){
+    if(p.type === type && p.ready && !p.collected && !found) {
+      var jamKey = type.replace("marmelada_","");
+      sklad["marmelada_"+jamKey] = (sklad["marmelada_"+jamKey]||0) + 1;
+      found = true;
+      return false;
+    }
+    return true;
+  });
+  setProductions(prods);
+  setSklad(sklad);
+  vypisStatus("Jam collected!", 1);
+  vykresliMarmelady();
+}
+
+
+
+
+// --- Progress bar a produkce ---
+function renderProgress(prod, typ) {
+  var secondsLeft = Math.max(0, Math.ceil((prod.started + prod.duration*1000 - Date.now())/1000));
+  var percent = Math.min(100, 100-100*secondsLeft/prod.duration);
+  var id = "prodTimer_" + prod.type;
+  return "<div class='progress-container'><div class='progress-bar' id='pb_" + id + "' style='width:" + percent + "%'></div></div>"
+    + "<div class='progress-text'>Time left: <span id='" + id + "'>" + formatTime(secondsLeft) + "</span></div>";
+}
+
+function runProductionTimers() {
+  clearInterval(window.kuchyneTimer);
+  function tick() {
+    var prods = getProductions(), now = Date.now(), změna = false;
+    for(var i=0;i<prods.length;i++){
+      var prod = prods[i];
+      if (prod.collected || prod.ready) continue;
+      var secondsLeft = Math.max(0, Math.ceil((prod.started + prod.duration*1000 - now)/1000));
+      if (secondsLeft <= 0) { prod.ready = true; změna = true; }
+    }
+    if (změna) setProductions(prods);
+    vykresliKuchyni();
+    vykresliHranolky();
+    vykresliMarmeladyProgress(); // <-- JEN PROGRESS, ne celá sekce!
+    if (prods.some(function(p){return !p.collected && !p.ready;})) window.kuchyneTimer = setTimeout(tick, 1000);
+  }
+  tick();
+}
+
+// --- Sebrání výstupu ---
+function sebratVyrobuKuchyne(type) {
+  var prods = getProductions();
+  var sklad = getSklad();
+  var found = false;
+  prods = prods.filter(function(p){
+    if(p.type === type && p.ready && !p.collected && !found) {
+      if(type==="popkorn") sklad["popkorn"] = (sklad["popkorn"]||0) + 1;
+      if(type==="hranolky") sklad["hranolky"] = (sklad["hranolky"]||0) + 1;
+      found = true;
+      return false;
+    }
+    return true;
+  });
+  setProductions(prods);
+  setSklad(sklad);
+  vypisStatus("Production collected!", 1);
+  vykresliKuchyni();
+  vykresliHranolky();
+}
+
+// --- Ostatní pomocné ---
+function formatTime(secs) {
+  if (secs < 60) return secs + "s";
+  var min = Math.floor(secs/60);
+  var s = secs % 60;
+  return min + "m " + s + "s";
+}
+
+window.onload = function() {
+  stavPrachy();
+  renderPiBalance()
+  renderMachinesShopKuchyne();
+  vykresliKuchyni();
+  vykresliHranolky();
+   vykresliMarmelady();
+  runProductionTimers();
+};
+
+  </script>
+</body>
+</html>

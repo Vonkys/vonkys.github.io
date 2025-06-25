@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8"/>
+  <title>Drunk - Punk</title>
+   <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <style>
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #e1fcff 0%, #fef6fa 100%);
+    margin: 0; padding: 0; text-align: center;
+  }
+  .nav-bar {
+    position: fixed;
+    top: 0; left: 0; width: 100vw;
+    background: #2196f3; color: white;
+    display: flex; justify-content: flex-end; gap: 2px;
+    z-index: 1000; box-shadow: 0 2px 8px #0002; padding: 7px 0;
+  }
+  .nav-link {
+    color: white; padding: 7px 24px; text-decoration: none;
+    font-weight: bold; font-size: 1.07em; border-radius: 0 0 10px 10px;
+    transition: background 0.18s; display: flex; align-items: center; gap: 6px;
+  }
+  .nav-link.active, .nav-link:hover { background: #1760a3; }
+  body { padding-top: 48px; }
+  .zpet-link {
+    display: inline-block;
+    margin: 20px 0 4px 0;
+    color: #1760a3;
+    background: #e9f6fd;
+    padding: 7px 17px;
+    border-radius: 9px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.08em;
+    box-shadow: 0 1px 8px #bbe8fd44;
+    transition: background 0.13s, color 0.13s;
+  }
+  .zpet-link:hover { background: #b7e0ed; color: #124061; }
+  h2 { margin: 16px 0 7px 0; color: #208278; font-size: 2.35em;}
+  .section {
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 2px 14px #b7d9db35;
+    display: block;
+    margin: 14px auto;
+    padding: 16px 17px 13px 17px;
+    min-width: 220px;
+    max-width: 600px;
+    text-align: center;
+  }
+  .section-title { color: #217c5e; font-size: 1.13em; margin-bottom: 8px; font-weight: 700; letter-spacing: 1px; }
+  .status { color:#b24b4b; font-weight:600; margin-bottom:10px;}
+  .success { color:#217c5e; }
+  .prod-btn {
+    background: #37af7b; color: #fff; border: none;
+    border-radius: 7px; font-size: 1em; margin: 6px 0 10px 0;
+    padding: 5px 20px; cursor: pointer;
+  }
+  .prod-btn:hover { background: #136652; }
+  .prod-btn[disabled] { background: #9dbdae; cursor: not-allowed;}
+  .machines-list {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .machines-list span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #e9dcb4;
+    border-radius: 7px;
+    padding: 5px 14px 4px 11px;
+    font-size: 1em;
+  }
+  #machinesSection { text-align: center; }
+  .need {color:#b24b4b;}
+  .has {color:#217c5e;}
+
+  /* Přidané z vinohrad */
+  .cards-flex {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 34px; margin-bottom: 6px;
+  }
+  .phase-card {
+    background: #f8fcf7;
+    border-radius: 14px;
+    box-shadow: 0 2px 12px #b7d9db33;
+    padding: 20px 23px 18px 23px;
+    min-width: 230px; max-width: 340px;
+    margin: 6px 6px 0 6px;
+    display: flex; flex-direction: column; align-items: center;
+    border-top: 7px solid #37af7b;
+    transition: box-shadow .18s;
+  }
+  .phase-card.kad { border-top-color: #ffd748; }
+  .phase-card.kotel { border-top-color: #7fc9ff; }
+  .phase-title {
+    font-size: 1.17em; font-weight: 700; color: #136652; margin-bottom: 6px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .phase-icon { font-size: 2em; }
+  .phase-prog { width: 100%; }
+  .phase-info { font-size: 1em; margin: 4px 0 7px 0;}
+  .progress-container {
+    width: 100%; background-color: #e0e0e0; border-radius: 8px; height: 12px;
+    margin-top: 8px; position: relative; overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%; background-color: #37af7b; width: 0%; transition: width 1s linear;
+  }
+  .progress-text {
+    font-size: 0.97em; margin-top: 6px; color: #555; font-weight: bold; text-align: center;
+  }
+
+  @media (max-width:900px) {
+    .cards-flex { flex-direction: column; align-items: center; gap: 14px;}
+    .phase-card { min-width: 220px; max-width: 99vw;}
+  }
+
+  @media (max-width:600px){
+    body { padding-top: 90px; }
+    .nav-bar { justify-content: center; flex-wrap: wrap; font-size: 0.97em; }
+    .nav-link { padding:7px 8px;font-size:1em; }
+    .section { padding:10px; }
+    h2 { font-size: 2.1em; }
+    .zpet-link { padding: 7px 6vw; font-size:1em;}
+  }
+</style>
+
+</head>
+<body>
+  <div class="nav-bar">
+    <a href="pestovani.html" class="nav-link">🌱 Grow Sh*t</a>
+<a href="vyroba.html" class="nav-link active">⚗️ Brewing</a>
+<a href="jzd.html" class="nav-link">🐷 Coop</a>
+<a href="sklad.html" class="nav-link">📦 Stash</a>
+<a href="finance.html" class="nav-link">💰 Wallet</a>
+<a href="hotel.html" class="nav-link">🏨 Motel</a>
+<a href="pub.html" class="nav-link">🏡 Bar</a>
+<a href="market.html" class="nav-link">🏪 Bazaar</a>
+  </div>
+  <a href="vyroba.html" class="zpet-link">← Back to production</a>
+  <h2>🍺 Brewery</h2>
+ <div id="balances" style="text-align:center; margin: 10px 0; font-weight: bold; font-size: 1.2em;">
+ <b>💵 Cash: <span id="stavPrachy"></span><br>
+  🪙 PI Coins: <span id="pi-balance"></span></b> ϖ
+</div>
+
+   <div class="section" id="machinesSection"></div>
+  <div class="section-title">🧪 Beer brewing</div>
+<div class="cards-flex" id="pivoSection"></div>
+
+  <div class="section" id="vyrobaStatus"></div>
+
+ 
+ <script>
+if (!localStorage.getItem("lihobaronFarmStorage")) {
+  localStorage.setItem("lihobaronFarmStorage", JSON.stringify({
+    pšenice: 0, chmel: 0, kvas_pivo: 0, pivo: 0
+  }));
+}
+if (!localStorage.getItem("lihobaronFarmCoins")) {
+  localStorage.setItem("lihobaronFarmCoins", 200);
+}
+if (!localStorage.getItem("lihobaronPi")) {
+  localStorage.setItem("lihobaronPi", 200);
+}
+if (!localStorage.getItem("lihobaronMachines")) {
+  localStorage.setItem("lihobaronMachines", "[]");
+}
+if (!localStorage.getItem("lihobaronProductions")) {
+  localStorage.setItem("lihobaronProductions", "[]");
+}
+function getPi() {
+  return JSON.parse(localStorage.getItem("lihobaronPi") || "0");
+}
+
+function renderPiBalance() {
+  document.getElementById("pi-balance").textContent = getPi();
+}
+
+function load(key, def) { try { let d=localStorage.getItem(key); if(!d)return def; return JSON.parse(d);}catch{return def;} }
+function save(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+function getMoney() { return load("lihobaronFarmCoins", 0);}
+function setMoney(m) { save("lihobaronFarmCoins", m);}
+function vypisStatus(txt,ok){ let e=document.getElementById("vyrobaStatus"); e.innerHTML="<span class='"+(ok?"success":"status")+"'>"+txt+"</span>"; setTimeout(()=>{e.innerHTML='';},2300);}
+function getSklad() { return load("lihobaronFarmStorage", {});}
+function setSklad(s) { save("lihobaronFarmStorage", s);}
+function getMachines() { return load("lihobaronMachines", []);}
+function setMachines(arr) { save("lihobaronMachines", arr);}
+function stavPrachy() { document.getElementById("stavPrachy").innerText = getMoney()+" $"; }
+function getProductions() { return load("lihobaronProductions", []);}
+function setProductions(arr) { save("lihobaronProductions", arr); }
+
+const PIVO_MACHINES = [
+  { key:"kad_pivo",   name:"Beer Vat 🍺",    price: 700 },
+  { key:"kotel_pivo", name:"Boiler ⚱️",  price: 1100 }
+];
+const PRODUCTION_TIMES = {
+  "kvasit_pivo": 185,
+  "varit_pivo": 307
+};
+
+function renderMachinesShop() {
+  const machines = getMachines();
+  let html = "<div class='section-title'>🛒 Gear shop</div>";
+  html += "<div class='machines-list'>";
+  PIVO_MACHINES.forEach(m=>{
+    if (machines.includes(m.key)) {
+      html += `<span class='has'>${m.name} ✔️</span>`;
+    } else {
+      html += `<span class='need'>${m.name} (${m.price} $) 
+        <button class='prod-btn' onclick="kupitStroj('${m.key}',${m.price})">Buy</button></span>`;
+    }
+  });
+  html += "</div>";
+  document.getElementById("machinesSection").innerHTML = html;
+}
+function kupitStroj(key, cena) {
+  let machines = getMachines();
+  let money = getMoney();
+  if (machines.includes(key)) { vypisStatus("You already own this gear!",0); return; }
+  if (money < cena) { alert("You're broke!"); return; }
+  machines.push(key);
+  setMachines(machines);
+  setMoney(money-cena);
+  vypisStatus("Gear bought!",1);
+  stavPrachy();
+  renderMachinesShop();
+  vykresliPivo();
+}
+
+function vykresliPivo() {
+  const machines = getMachines();
+  const sklad = getSklad();
+  const prods = getProductions();
+
+  let html = "";
+
+  html += `<div class="cards-flex">`;
+
+  // Kvašení piva
+  html += `<div class="phase-card kad">
+    <div class="phase-title">🍺 Fermenting beer</div>
+    <div class="phase-info">Suroviny: 1× wheat, 1× hops</div>`;
+  if (!machines.includes("kad_pivo")) {
+    html += `<div class='status'>Buy the damn vat first!</div>`;
+  } else {
+    const prod = prods.find(p => p.type === "kvasit_pivo" && !p.collected);
+    if (prod) {
+      html += prod.ready
+        ? `<button class='prod-btn' onclick="sebratVyrobuPivo('kvasit_pivo')">Grab it</button>`
+        : renderProgress(prod, "kvasit_pivo");
+    } else if ((sklad["pšenice"] || 0) > 0 && (sklad["chmel"] || 0) > 0) {
+      html += `<button class='prod-btn' onclick="startProduction('kvasit_pivo')">Start fermenting</button>`;
+    } else {
+     html += `<div class='status'>Missing: ${
+  (sklad["pšenice"] || 0) < 1 ? "wheat" : ""
+}${
+  (sklad["pšenice"] || 0) < 1 && (sklad["chmel"] || 0) < 1 ? ", " : ""
+}${
+  (sklad["chmel"] || 0) < 1 ? "hops" : ""
+}</div>`;
+
+
+    }
+  }
+  html += `</div>`;
+
+  // Vaření piva
+  html += `<div class="phase-card kotel">
+    <div class="phase-title">⚒️ Boiling beer</div>
+    <div class="phase-info">Stuff needed: 1× beer mash</div>`;
+  if (!machines.includes("kotel_pivo")) {
+    html += `<div class='status'>Get the boiler first!</div>`;
+  } else {
+    const prod = prods.find(p => p.type === "varit_pivo" && !p.collected);
+    if (prod) {
+      html += prod.ready
+        ? `<button class='prod-btn' onclick="sebratVyrobuPivo('varit_pivo')">Grab it</button>`
+        : renderProgress(prod, "varit_pivo");
+    } else if ((sklad["kvas_pivo"] || 0) > 0) {
+      html += `<button class='prod-btn' onclick="startProduction('varit_pivo')">Start boiling</button>`;
+    } else {
+      html += `<div class='status'>No mash, no brew!</div>`;
+    }
+  }
+  html += `</div>`;
+
+  html += `</div>`; // konec cards-flex
+
+  document.getElementById("pivoSection").innerHTML = html;
+  stavPrachy();
+}
+
+
+// Start výroby
+function startProduction(type) {
+  const sklad = getSklad();
+  let prods = getProductions();
+  if (prods.find(p=>p.type===type && !p.collected)) return;
+  if (type === "kvasit_pivo" && ((sklad["pšenice"]||0)<1 || (sklad["chmel"]||0)<1)) return;
+  if (type === "varit_pivo" && ((sklad["kvas_pivo"]||0)<1)) return;
+  // Odečíst suroviny
+  if (type === "kvasit_pivo")   { sklad["pšenice"]--; sklad["chmel"]--; }
+  if (type === "varit_pivo")    { sklad["kvas_pivo"]--; }
+  prods.push({ type, started: Date.now(), duration: PRODUCTION_TIMES[type] || 20, ready: false, collected: false });
+  setSklad(sklad);
+  setProductions(prods);
+  vykresliPivo();
+  runProductionTimers();
+}
+
+// Progress bar
+function renderProgress(prod, typ) {
+  let secondsLeft = Math.max(0, Math.ceil((prod.started + prod.duration*1000 - Date.now())/1000));
+  let percent = Math.min(100, 100-100*secondsLeft/prod.duration);
+  let id = `prodTimer_${prod.type}`;
+  return `<div class="progress-container"><div class="progress-bar" id="pb_${id}" style="width:${percent}%"></div></div>
+          <div class="progress-text">Zbývá: <span id="${id}">${formatTime(secondsLeft)}</span></div>`;
+}
+
+function runProductionTimers() {
+  clearInterval(window.pivoTimer);
+  function tick() {
+    let prods = getProductions(), now = Date.now(), změna = false;
+    for(let i=0;i<prods.length;i++){
+      let prod = prods[i];
+      if (prod.collected || prod.ready) continue;
+      let secondsLeft = Math.max(0, Math.ceil((prod.started + prod.duration*1000 - now)/1000));
+      if (secondsLeft <= 0) { prod.ready = true; změna = true; }
+    }
+    if (změna) setProductions(prods);
+    vykresliPivo();
+    if (prods.some(p=>!p.collected && !p.ready)) window.pivoTimer = setTimeout(tick, 1000);
+  }
+  tick();
+}
+
+// Sebrání výstupu
+function sebratVyrobuPivo(type) {
+  let prods = getProductions();
+  let sklad = getSklad();
+  let found = false;
+  prods = prods.filter(function(p){
+    if(p.type === type && p.ready && !p.collected && !found) {
+      if(type==="kvasit_pivo") sklad["kvas_pivo"] = (sklad["kvas_pivo"]||0) + 1;
+      if(type==="varit_pivo") sklad["pivo"] = (sklad["pivo"]||0) + 1;
+      found = true;
+      return false;
+    }
+    return true;
+  });
+  setProductions(prods);
+  setSklad(sklad);
+  vypisStatus("Output collected!", 1);
+  vykresliPivo();
+}
+
+// Helper
+function formatTime(secs) {
+  if (secs < 60) return secs + "s";
+  let min = Math.floor(secs/60);
+  let s = secs % 60;
+  return min + "m " + s + "s";
+}
+
+window.onload = function() {
+  renderMachinesShop();
+  vykresliPivo();
+  renderPiBalance();
+  stavPrachy();
+  runProductionTimers();
+};
+</script>
+</body>
+</html>

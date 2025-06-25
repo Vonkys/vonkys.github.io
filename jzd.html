@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <title>Drunk - Punk</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 0; padding-top: 48px; }
+    h1 { text-align: center; margin: 20px; color: #444; }
+    .money { text-align: center; font-weight: bold; color: #060606; margin-bottom: 6px; font-size: 1.1em; }
+    .nav-bar {
+      position: fixed; top: 0; left: 0; width: 100vw; background: #2196f3; color: white;
+      display: flex; justify-content: flex-end; gap: 2px; z-index: 1000;
+      box-shadow: 0 2px 8px #0002; padding: 7px 0;
+    }
+    .nav-link { color: white; padding: 7px 24px; text-decoration: none; font-weight: bold; font-size: 1.07em; border-radius: 0 0 10px 10px; transition: background 0.18s; display: flex; align-items: center; gap: 6px; }
+    .nav-link.active, .nav-link:hover { background: #1760a3; }
+    .sekce { max-width: 480px; margin: 20px auto; background: #fff; border-radius: 12px; box-shadow: 0 0 10px #ccc; padding: 15px; }
+    .zvire { padding: 10px; border-bottom: 1px solid #eee; display: flex; flex-direction: column; }
+    .zvire:last-child { border-bottom: none; }
+    .hlavicka { display: flex; justify-content: space-between; align-items: center; }
+    .stav, .odpocty { font-size: 0.9em; color: #666; }
+    .tlacitka { margin-top: 10px; display: flex; gap: 8px; }
+    button { padding: 6px 10px; border: none; border-radius: 5px; background: #2196f3; color: white; cursor: pointer; font-weight: bold; }
+    button:hover { background: #1760a3; }
+    .mrtve { color: red; font-weight: bold; }
+    .shop-item { border-bottom: 1px solid #eee; padding: 10px 0; }
+    .shop-item:last-child { border-bottom: none; }
+    .shop-header { font-weight: bold; margin-bottom: 5px; }
+    #hnoj-minihra {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.8);
+  z-index: 9999;
+  overflow: hidden;
+}
+
+#hnoj-timer, #hnoj-skore {
+  color: white;
+  font-size: 20px;
+  position: absolute;
+  top: 10px;
+  padding: 5px 10px;
+  background: rgba(0,0,0,0.5);
+  border-radius: 10px;
+}
+
+#hnoj-timer { left: 10px; }
+#hnoj-skore { right: 10px; }
+#feeding-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px; /* mezera mezi tlačítkem a textem */
+  margin-top: 10px; /* trochu odsazení shora */
+}
+
+#hnoj-kos {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  font-size: 40px;
+  width: 60px;
+  height: 60px;
+  margin-left: -30px;
+  text-align: center;
+  transition: left 0.05s linear;
+  pointer-events: none;
+}
+.hovno {
+  position: absolute;
+  top: -40px;
+  font-size: 30px;
+  animation: padani 3s linear forwards;
+}
+
+@keyframes padani {
+  to {
+    top: 100%;
+  }
+}
+    .disabled { opacity: 0.5; cursor: not-allowed; }
+    .progress-bar { height: 10px; background: #ccc; border-radius: 6px; overflow: hidden; margin-top: 4px; }
+    .progress-fill { height: 10px; background: #4caf50; transition: width 1s linear; }
+    .hladovi { color: #e03; font-weight: bold; }
+   @media (max-width:600px){
+  .container{padding:10px;}
+  .nav-link{padding:7px 8px;font-size:1em;}
+  .nav-bar{flex-wrap:wrap; justify-content:center;}  /* TADY! */
+  body { padding-top: 90px; }
+}
+
+
+  </style>
+</head>
+<body>
+  <div class="nav-bar">
+    <a href="pestovani.html" class="nav-link">🌱 Grow Sh*t</a>
+<a href="vyroba.html" class="nav-link">⚗️ Brewing</a>
+<a href="jzd.html" class="nav-link active">🐷 Coop</a>
+<a href="sklad.html" class="nav-link">📦 Stash</a>
+<a href="finance.html" class="nav-link">💰 Wallet</a>
+<a href="hotel.html" class="nav-link">🏨 Motel</a>
+<a href="pub.html" class="nav-link">🏡 Bar</a>
+<a href="market.html" class="nav-link">🏪 Bazaar</a>
+ </div>
+<h1>🐮 Coop – Animal Mayhem</h1>
+ <div class="money">
+  💵 Balance: <span id="money"></span> $<br>
+  🌾 Wheat in stash: <span id="psenice"></span> pcs<br>
+  🪙 Pi Coins: <span id="pi-balance"></span> ϖ
+ <div id="feeding-controls">
+  <button id="btn-pause-feeding" style="background:#d44e0b;color:white;padding:6px 16px;border-radius:7px;">
+    Pause feeding for 24h (20ϖ)
+  </button>
+  <span id="feeding-paused-info" style="color:#b50;"></span>
+</div>
+
+
+</div>
+
+    <div class="sekce">
+    <h2>🛒 Buy animals</h2>
+    <div id="zoo-shop"></div>
+  </div>
+  <div class="sekce" id="jzd"></div>
+ <!-- HNOJ MINI-HRA -->
+<div id="hnoj-minihra" style="display:none;">
+  <div id="hnoj-timer">⏱ 60</div>
+  <div id="hnoj-skore">💩 0 / 10</div>
+  <div id="hnoj-kos">🪣</div>
+</div>
+<script>
+if (!localStorage.getItem("lihobaronFarmStorage")) {
+  localStorage.setItem("lihobaronFarmStorage", JSON.stringify({
+    pšenice: 0, chmel: 0, kukuřice: 0, reva: 0, jablko: 0, hrušky: 0, švestky: 0,
+    meruňky: 0, broskve: 0, mrkev: 0, brambora: 0, rajčata: 0, chilli: 0,
+    okurky: 0, třešně: 0, cibule: 0, česnek: 0, jahody: 0, vejce: 0, krůtí_maso: 0, mléko: 0, kozí_mléko: 0, šunka: 0, kachní_vejce: 0, med: 0, vlna: 0, králičí_maso: 0,
+  }));
+}
+if (!localStorage.getItem("lihobaronFarmSeeds")) {
+  localStorage.setItem("lihobaronFarmSeeds", JSON.stringify({
+    pšenice: 0, chmel: 0, kukuřice: 0, reva: 0, jablko: 0, hruška: 0, švestka: 0,
+    meruňka: 0, broskev: 0, mrkev: 0, brambora: 0, rajčata: 0, chilli: 0,
+    okurky: 0, třešně: 0, cibule: 0, česnek: 0, jahody: 0
+  }));
+}
+if (!localStorage.getItem("lihobaronFarmXP")) {
+  localStorage.setItem("lihobaronFarmXP", 0);
+}
+if (!localStorage.getItem("lihobaronFarmCoins")) {
+  localStorage.setItem("lihobaronFarmCoins", 200);
+}
+if (!localStorage.getItem("lihobaronPi")) {
+  localStorage.setItem("lihobaronPi", 200);
+}
+// -- PAUZA ZIVENI --
+if (!localStorage.getItem("lihobaronPauseFeedingUntil")) {
+  localStorage.setItem("lihobaronPauseFeedingUntil", "0");
+}
+
+var sklad = JSON.parse(localStorage.getItem("lihobaronFarmStorage") || "{}");
+var animals = JSON.parse(localStorage.getItem("lihobaronZvirata") || "[]");
+
+if (!localStorage.getItem("lihobaronFarmCoins")) localStorage.setItem("lihobaronFarmCoins", "200");
+if (sklad["pšenice"] == null) sklad["pšenice"] = 0;
+localStorage.setItem("lihobaronFarmStorage", JSON.stringify(sklad));
+
+var coins = +localStorage.getItem("lihobaronFarmCoins") || 200;
+var krmInterval = 1 * 60 * 60 * 1000; // 1 hodina
+
+var animalDefs = {
+  slepice: { emoji: "🐔", jmeno: "Hen", cena: 100, produkty: [
+    { typ: "vejce", interval: 1 * 60 * 60 * 1000 },
+    { typ: "Crap", interval: 24 * 60 * 60 * 1000 }
+  ]},
+   kachna: {
+    emoji: "🦆", jmeno: "Duck", cena: 150, produkty: [
+      { typ: "kachní_vejce", interval: 2 * 60 * 60 * 1000 },
+      { typ: "Crap", interval: 24 * 60 * 60 * 1000 }
+    ]},
+  krocan: { emoji: "🦃", jmeno: "Turkey", cena: 200, produkty: [
+    { typ: "krůtí_maso", interval: 2 * 60 * 60 * 1000 },
+    { typ: "Crap", interval: 24 * 60 * 60 * 1000 }
+  ]},
+  králík: {
+    emoji: "🐇", jmeno: "Rabbit", cena: 300, produkty: [
+      { typ: "králičí_maso", interval: 3 * 60 * 60 * 1000 },
+      { typ: "Crap", interval: 24 * 60 * 60 * 1000 }
+    ]},
+  ovce: {
+    emoji: "🐑", jmeno: "Sheep", cena: 500, produkty: [
+      { typ: "vlna", interval: 4 * 60 * 60 * 1000 },
+      { typ: "Crap", interval: 24 * 60 * 60 * 1000 }
+    ]},
+  prase: { emoji: "🐷", jmeno: "Pig", cena: 600, produkty: [
+    { typ: "šunka", interval: 3 * 60 * 60 * 1000 },
+    { typ: "Crap", interval: 24 * 60 * 60 * 1000 }
+  ]},
+  koza: { emoji: "🐐", jmeno: "Goat", cena: 700, produkty: [
+    { typ: "kozí_mléko", interval: 3 * 60 * 60 * 1000 },
+    { typ: "Crap", interval: 24 * 60 * 60 * 1000 }
+  ]},
+  krava: { emoji: "🐮", jmeno: "Cow", cena: 1000, produkty: [
+    { typ: "mléko", interval: 2 * 60 * 60 * 1000 },
+    { typ: "Crap", interval: 24 * 60 * 60 * 1000 }
+  ]},
+vcela: {
+  emoji: "🐝", jmeno: "Bee", cena: 700, produkty: [
+    { typ: "med", interval: 3 * 60 * 60 * 1000 }, 
+    { typ: "Crap", interval: 24 * 60 * 60 * 1000 }
+  ]}
+};
+
+function saveAnimals() {
+  localStorage.setItem("lihobaronZvirata", JSON.stringify(animals));
+}
+function setMoney(m) {
+  coins = m;
+  localStorage.setItem("lihobaronFarmCoins", m);
+  document.getElementById("money").textContent = m;
+}
+function renderPsenice() {
+  document.getElementById("psenice").textContent = sklad["pšenice"] || 0;
+}
+function renderPiBalance() {
+  document.getElementById("pi-balance").textContent = getPi();
+}
+
+function getPi() {
+  return parseInt(localStorage.getItem("lihobaronPi") || "0", 10);
+}
+function setPi(val) {
+  localStorage.setItem("lihobaronPi", val);
+  renderPiBalance();
+}
+
+// --- INFO O POZASTAVENI ZIVENI ---
+
+function renderFeedingPauseInfo() {
+  var pauseUntil = parseInt(localStorage.getItem("lihobaronPauseFeedingUntil") || "0", 10);
+  var now = Date.now();
+  var el = document.getElementById("feeding-paused-info");
+  if (!el) return;
+  if (pauseUntil > now) {
+    var totalSeconds = Math.ceil((pauseUntil - now) / 1000);  // rozdíl v sekundách
+    var hod = Math.floor(totalSeconds / 3600);
+    var min = Math.floor((totalSeconds % 3600) / 60);
+    var sec = totalSeconds % 60;
+    el.textContent = "" + 
+      (hod > 0 ? hod + "h " : "") + 
+      (min > 0 ? min + " min " : "") + 
+      sec + " s.";
+  } else {
+    el.textContent = "";
+  }
+}
+
+const produktNazvy = {
+  "vejce": "Egg",
+  "krůtí_maso": "Turkey meat",
+  "mléko": "Milk",
+  "kozí_mléko": "Goat milk",
+  "šunka": "Ham",
+  "kachní_vejce": "Duck egg",
+  "med": "Honey",
+  "vlna": "Wool",
+  "králičí_maso": "Rabbit meat",
+  "hnůj": "Manure"
+};
+
+
+
+function renderShop() {
+  var shop = document.getElementById("zoo-shop");
+  shop.innerHTML = "";
+  Object.keys(animalDefs).forEach(function(key) {
+    var a = animalDefs[key];
+    shop.innerHTML += '<div class="shop-item">' +
+      '<div class="shop-header">' + a.emoji + ' <b>' + a.jmeno + '</b> – ' + a.cena + '$</div>' +
+      '<div style="font-size:0.9em; color:#555; margin-bottom:5px;">Feed: 🌾 1 wheat / hour<br>Outputs: ' +
+      a.produkty.map(function(p) {
+  return (produktNazvy[p.typ] || p.typ) + ' every ' + Math.round(p.interval/3600000) + 'h';
+}).join(", ") +
+      '</div>' +
+      '<button onclick="koupitZvire(\'' + key + '\')">Buy</button>' +
+      '</div>';
+  });
+}
+  function koupitZvire(typ) {
+  var def = animalDefs[typ];
+  if (coins < def.cena) {
+    alert("Not enough money, bro!");
+    return;
+  }
+  coins -= def.cena;
+  setMoney(coins);
+  var z = { typ: typ, last_feed: Date.now() }; // čas posledního krmení
+  def.produkty.forEach(function(p) {
+    z['last_' + p.typ] = Date.now();
+  });
+  animals.push(z);
+  saveAnimals();
+  renderAnimals();
+  renderShop();
+  alert("Animal added to the crew!");
+}
+
+function formatTime(ms) {
+  if (ms < 0) ms = 0;
+  var s = Math.floor(ms / 1000);
+  var h = Math.floor(s / 3600);
+  var m = Math.floor((s % 3600) / 60);
+  var sec = s % 60;
+  return h + "h " + m + "m " + sec + "s";
+}
+function krmeniLoop() {
+  var now = Date.now();
+  var changed = false;
+  var hnujLimit = 24 * 60 * 60 * 1000; // 24h limit pro neodklizený hnůj
+
+  var pauseUntil = parseInt(localStorage.getItem("lihobaronPauseFeedingUntil") || "0", 10);
+  var feedingPaused = (pauseUntil > now);
+
+  animals.forEach(function(zvire) {
+    if (zvire.mrtve) return;
+
+    // Během pauzy živení - žádné odečítání pšenice, žádný dyň, čas posunout
+    if (feedingPaused) {
+      zvire.last_feed = now;
+    } else {
+      var feedTime = zvire.last_feed || now;
+      var feedings = Math.floor((now - feedTime) / krmInterval);
+
+      if (feedings > 0) {
+        for (var i = 0; i < feedings; i++) {
+          if ((sklad["pšenice"] || 0) > 0) {
+            sklad["pšenice"] -= 1;
+            zvire.last_feed = (zvire.last_feed || now) + krmInterval;
+            changed = true;
+          } else {
+            zvire.mrtve = true;
+            changed = true;
+            break;
+          }
+        }
+      }
+    }
+
+    // Kontrola hnoje – pokud nebyl dlouho odklizen, chcípne
+    var lastHnuj = zvire["last_hnůj"] ?? zvire["last_Crap"] ?? zvire.last_feed ?? now;
+    if (now - lastHnuj > hnujLimit) {
+      zvire.mrtve = true;
+      changed = true;
+    }
+  });
+
+  if (changed) {
+    localStorage.setItem("lihobaronFarmStorage", JSON.stringify(sklad));
+    saveAnimals();
+  }
+}
+
+function renderAnimals() {
+  var kont = document.getElementById("jzd");
+  kont.innerHTML = "";
+  if (animals.length === 0) {
+    kont.innerHTML = '<p style="text-align:center; color:#999;">No beasts yet.</p>';
+    return;
+  }
+  var now = Date.now();
+  animals.forEach(function(zvire, idx) {
+    var def = animalDefs[zvire.typ];
+    if (!def) return;
+    var isDead = zvire.mrtve;
+
+    var html = '<div class="zvire">' +
+      '<div class="hlavicka">' +
+      '<span>' + def.emoji + ' <b>' + def.jmeno + '</b></span>' +
+      '<span class="stav">' + (isDead ? '<span class="mrtve">Dead af</span>' : 'Alive & kickin') + '</span>' +
+      '</div>';
+
+    if (!isDead) {
+      html += '<div class="odpocty">';
+      // Krmení
+      var feedInterval = krmInterval;
+      var lastFeed = zvire.last_feed || now;
+      var timeToFeed = feedInterval - (now - lastFeed);
+      html += '<div>🍞 Feed in: <span class="' + (timeToFeed < 60000 ? 'hladovi' : '') + '">' + formatTime(timeToFeed) + '</span>';
+      var progressF = 100 - Math.round(timeToFeed / feedInterval * 100);
+      html += '<div class="progress-bar"><div class="progress-fill" style="width:' + progressF + '%"></div></div></div>';
+
+      // Produkty
+      def.produkty.forEach(function(prod) {
+  var last = zvire['last_' + prod.typ] || 0;
+  var zbyva = Math.max(0, prod.interval - (now - last));
+  var progress = 100 - Math.round(zbyva / prod.interval * 100);
+  html += '<div>⏳ ' + (produktNazvy[prod.typ] || prod.typ) + ': ' + formatTime(zbyva) +
+    '<div class="progress-bar"><div class="progress-fill" style="width:' + progress + '%"></div></div></div>';
+});
+
+      html += '</div>';
+      html += '<div class="tlacitka">' +
+        '<button onclick="sklidit(' + idx + ')">Collect</button>' +
+        '<button onclick="spustHnojMinihru(' + idx + ')">Shovel the crap</button>' +
+        '</div>';
+    } else {
+      // U mrtvého zvířete tlačítko pro odklizení zdechliny
+      html += '<div class="tlacitka">' +
+        '<button onclick="odkliditMrtve(' + idx + ')">Remove corpse</button>' +
+        '</div>';
+    }
+    html += '</div>';
+    kont.innerHTML += html;
+  });
+  renderPsenice();
+}
+
+// Nová funkce:
+function odkliditMrtve(idx) {
+  animals.splice(idx, 1);
+  saveAnimals();
+  renderAnimals();
+}
+
+function sklidit(idx) {
+  var zvire = animals[idx];
+  if (zvire.mrtve) return alert("That thing's dead");
+  var def = animalDefs[zvire.typ];
+  var cas = Date.now();
+  var necoSklizeno = false;
+  def.produkty.forEach(function(prod) {
+    var last = zvire['last_' + prod.typ] || 0;
+    if (cas - last >= prod.interval) {
+      sklad[prod.typ] = (sklad[prod.typ] || 0) + 1;
+      zvire['last_' + prod.typ] = cas;
+      necoSklizeno = true;
+    }
+  });
+  if (necoSklizeno) {
+    alert("Looted!");
+  } else {
+    alert("Nothing ready yet!");
+  }
+  localStorage.setItem("lihobaronFarmStorage", JSON.stringify(sklad));
+  saveAnimals();
+  renderAnimals();
+}
+
+
+function odklidit(idx) {
+  var zvire = animals[idx];
+  var def = animalDefs[zvire.typ];
+  var cas = Date.now();
+  if (zvire.mrtve) return alert("That thing's dead");
+
+  def.produkty.forEach(function(prod) {
+    if (prod.typ === "hnůj" || prod.typ === "Crap") {
+      zvire['last_' + prod.typ] = cas;
+    }
+  });
+
+  saveAnimals();
+  renderAnimals();
+}
+let hnojTimer = 60;
+let hnojScore = 0;
+let kosElement = null;
+let kosPozice = window.innerWidth / 2;
+
+let hnojInterval = null;
+let hnojPadaci = null;
+let hnojIndex = null;
+
+let pohybKosePridan = false; // pojistka
+
+function nastavPohybKose() {
+  kosElement = document.getElementById("hnoj-kos");
+  if (!kosElement) return;
+
+  function pohyb(x) {
+    const sirka = kosElement.offsetWidth;
+    const max = window.innerWidth - sirka;
+    let pos = x - (sirka / 2);
+    if (pos < 0) pos = 0;
+    if (pos > max) pos = max;
+    kosElement.style.left = pos + "px";
+    kosPozice = pos;
+  }
+
+  if (!pohybKosePridan) {
+    document.addEventListener("mousemove", function (e) {
+      pohyb(e.clientX);
+    });
+
+    document.addEventListener("touchmove", function (e) {
+      if (e.touches.length > 0) {
+        pohyb(e.touches[0].clientX);
+      }
+    }, { passive: false });
+
+    document.addEventListener("keydown", function(e) {
+      if (!kosElement) return;
+      if (e.key === "ArrowLeft") {
+        kosPozice -= 30;
+      } else if (e.key === "ArrowRight") {
+        kosPozice += 30;
+      }
+      kosPozice = Math.max(0, Math.min(window.innerWidth - 60, kosPozice));
+      kosElement.style.left = kosPozice + "px";
+    });
+
+    pohybKosePridan = true; // zamknout pro další spuštění
+  }
+
+  // nastavit počáteční pozici vždy znovu
+  kosPozice = window.innerWidth / 2;
+  kosElement.style.left = kosPozice + "px";
+}
+function spustHnojMinihru(idx) {
+  hnojIndex = idx;
+  hnojScore = 0;
+  hnojTimer = 40;
+
+  document.getElementById("hnoj-minihra").style.display = "block";
+  document.getElementById("hnoj-skore").innerText = "💩 0 / 30";
+  document.getElementById("hnoj-timer").innerText = "⏱ 40";
+
+  kosElement = document.getElementById("hnoj-kos");
+  kosPozice = window.innerWidth / 2;
+  kosElement.style.left = kosPozice + "px";
+
+  hnojInterval = setInterval(function () {
+    hnojTimer--;
+    document.getElementById("hnoj-timer").innerText = "⏱ " + hnojTimer;
+    if (hnojTimer <= 0) {
+      konecHnujMinihry(false);
+    }
+  }, 1000);
+
+  hnojPadaci = setInterval(spustHovno, 1000);
+}
+
+let hnojFallingIntervals = [];
+let hnojZamknuto = false;
+
+function spustHovno() {
+  const hovno = document.createElement("div");
+  hovno.className = "hovno";
+  hovno.innerText = "💩";
+  hovno.style.left = Math.random() * 90 + "%";
+  hovno.style.top = "-40px";
+  document.getElementById("hnoj-minihra").appendChild(hovno);
+
+  let top = -40;
+  const fallInterval = setInterval(function () {
+    top += 1;
+    hovno.style.top = top + "px";
+
+    const kos = document.getElementById("hnoj-kos");
+    const kosRect = kos.getBoundingClientRect();
+    const hovnoRect = hovno.getBoundingClientRect();
+
+    if (
+      hovnoRect.bottom >= kosRect.top &&
+      hovnoRect.top <= kosRect.bottom &&
+      hovnoRect.left < kosRect.right &&
+      hovnoRect.right > kosRect.left
+    ) {
+      clearInterval(fallInterval);
+      hovno.remove();
+      hnojScore++;
+      document.getElementById("hnoj-skore").innerText = "💩 " + hnojScore + " / 30";
+      if (hnojScore >= 30) {
+        konecHnujMinihry(true);
+      }
+    }
+
+    if (top > window.innerHeight) {
+      clearInterval(fallInterval);
+      hovno.remove();
+    }
+  }, 30);
+
+  hnojFallingIntervals.push(fallInterval);
+}
+
+function konecHnujMinihry(uspesne) {
+  if (hnojZamknuto) return;
+  hnojZamknuto = true;
+
+  clearInterval(hnojInterval);
+  clearInterval(hnojPadaci);
+  hnojFallingIntervals.forEach(clearInterval);
+  hnojFallingIntervals = [];
+
+  // Odstranění všech hovínek z DOMu
+  document.querySelectorAll(".hovno").forEach(e => e.remove());
+
+  if (uspesne) {
+    alert("Crap cleared! 💩✅");
+    odklidit(hnojIndex);
+  } else {
+    alert("You were too slow! 💩🕒");
+  }
+
+  document.getElementById("hnoj-minihra").style.display = "none";
+  document.getElementById("hnoj-minihra").innerHTML =
+    "<div id='hnoj-timer'>⏱ 40</div>" +
+    "<div id='hnoj-skore'>💩 0 / 30</div>" +
+    "<div id='hnoj-kos'>🪣</div>";
+
+  nastavPohybKose();
+  hnojScore = 0;
+  hnojIndex = null;
+
+  setTimeout(() => {
+    hnojZamknuto = false;
+  }, 500);
+}
+
+
+
+// -- TLAČÍTKO VYPNUTÍ ŽIVENÍ --
+document.getElementById("btn-pause-feeding").onclick = function() {
+  var pi = getPi();
+  if (pi < 20) {
+    alert("Not enough PI coins!");
+    return;
+  }
+  var pauseUntil = parseInt(localStorage.getItem("lihobaronPauseFeedingUntil") || "0", 10);
+  if (pauseUntil > Date.now()) {
+    var zbyva = Math.ceil((pauseUntil - Date.now())/3600000);
+    alert("eeding already paused! Left " + zbyva + " hours.");
+    return;
+  }
+  setPi(pi - 20);
+  localStorage.setItem("lihobaronPauseFeedingUntil", "" + (Date.now() + 24*60*60*1000));
+  alert("Feeding off for 24h!");
+  renderFeedingPauseInfo();
+};
+
+// --- INIT ---
+setMoney(coins);
+renderPsenice();
+renderPiBalance();
+renderAnimals();
+renderShop();
+nastavPohybKose();
+renderFeedingPauseInfo();
+
+setInterval(function () {
+  krmeniLoop();
+  renderAnimals();
+  renderFeedingPauseInfo();
+}, 500);
+
+
+
+</script>
+</body>
+</html>

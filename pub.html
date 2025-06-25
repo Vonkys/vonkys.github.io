@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<title>Drunk - Punk</title>
+ <link rel="icon" href="favicon.ico" type="image/x-icon" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f8f8fa; margin: 0; padding: 0; }
+    h1 { text-align: center; color: #208278; margin-top: 35px; }
+    .nav-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      background: #2196f3;
+      color: white;
+      display: flex;
+      justify-content: flex-end;
+      gap: 2px;
+      z-index: 1000;
+      box-shadow: 0 2px 8px #0002;
+      padding: 7px 0;
+    }
+    .nav-link {
+      color: white;
+      padding: 7px 24px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 1.07em;
+      border-radius: 0 0 10px 10px;
+      transition: background 0.18s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .nav-link.active, .nav-link:hover {
+      background: #1760a3;
+    }
+    body { padding-top: 48px; }
+  @media (max-width:520px) {
+    h1 {font-size:1.35em;}
+    .farm {
+      max-width: 100vw;
+      gap: 16px;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(7, 80px);
+    }
+    .plot {min-width:52px; min-height:52px; font-size:0.97em;}
+    .progress-bg {width:36px;}
+    .select-crop, .shop-modal {min-width:90vw;}
+  }
+  @media (max-width:600px) {
+    .nav-bar { justify-content: center; flex-wrap: wrap; font-size: 0.97em; }
+    .nav-link { padding: 7px 8px; font-size: 1em;}
+  }
+  body { padding-top: 48px; }
+  .sekce { background: #fff; border-radius: 14px; box-shadow: 0 2px 16px #b7d9db35; margin: 20px auto 0 auto; padding: 18px 16px 15px 16px; max-width: 430px;}
+  .sekce h2 {margin-top:0;}
+  .list {margin:8px 0;}
+  .polozka {padding: 5px 0 5px 0; font-size: 1.08em; border-bottom: 1px solid #eee; display:flex;align-items:center;}
+  .ikona {font-size: 1.22em; margin-right:7px;}
+  .none {color:#aaa;}
+  /* ---- NOVÉ STYLY PRO KARTY HOSTŮ ---- */
+  .host-cards {
+    max-width: 430px;
+    margin: 25px auto 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .pub-card {
+    background: #f6f8fa;
+    box-shadow: 0 4px 18px #0003, 0 2px 4px #2221;
+    border-radius: 17px;
+    max-width: 430px;
+    margin: 0 auto;
+    padding: 18px 20px 16px 20px;
+    color: #222;
+    font-size: 1.12em;
+    position: relative;
+  }
+  .pub-card .img {
+    width: 55px;
+    height: 55px;
+    border-radius: 11px;
+    box-shadow: 0 2px 8px #7775;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.1em;
+    margin-right: 15px;
+  }
+  .pub-card .header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 9px;
+  }
+  .pub-card .desc {
+    font-size: 1.03em;
+    margin-bottom: 9px;
+    color: #444;
+  }
+  .pub-card .btn-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 9px;
+  }
+  .pub-card button {
+    background: #22a324;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 2px 6px #8883;
+    transition: background 0.15s;
+  }
+  .pub-card button.reject {
+    background: #d44;
+  }
+  .pub-card button:disabled {
+    background: #aaa;
+    cursor: default;
+    opacity: 0.7;
+  }
+  .pub-card .alert {
+    display: flex;
+    align-items: center;
+    margin-top: 12px;
+    color: #c60000;
+    font-weight: bold;
+    font-size: 1.1em;
+    gap: 7px;
+  }
+  .pub-card .alert .icon {
+    font-size: 1.3em;
+    margin-right: 4px;
+  }
+  .pub-card .done {
+    color: #177d0f;
+    font-weight: bold;
+    margin-top: 11px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .pub-card .done .icon {
+    font-size: 1.25em;
+  }
+</style>
+</head>
+<body>
+  <div class="nav-bar">
+    <a href="pestovani.html" class="nav-link">🌱 Grow Sh*t</a>
+<a href="vyroba.html" class="nav-link">⚗️ Brewing</a>
+<a href="jzd.html" class="nav-link">🐷 Coop</a>
+<a href="sklad.html" class="nav-link">📦 Stash</a>
+<a href="finance.html" class="nav-link">💰 Wallet</a>
+<a href="hotel.html" class="nav-link">🏨 Motel</a>
+<a href="pub.html" class="nav-link active">🏡 Bar</a>
+<a href="market.html" class="nav-link">🏪 Bazaar</a>
+   </div>
+
+ <h1 style="margin-top:38px;">🏡 Bar</h1>
+<div id="balances" style="text-align:center; margin: 10px 0; font-weight: bold; font-size: 1.2em;">
+  <b>💵 Balance: <span id="money"></span> $<br> 
+  🪙 PI Coins: <span id="pi-balance"></span></b> ϖ
+</div>
+
+  
+  <!-- NOVÁ SEKCE: KARTY HOSTŮ -->
+  <div class="host-cards" id="pubCards"></div>
+  
+  <!-- MŮŽEŠ smazat starou sekci s "Aktuální zakázkou", nebo ji schovat -->
+  <!-- <div class="sekce" id="orderSection"> ... </div> -->
+
+<script>
+ // --- Inicializace výchozích hodnot, pokud chybí ---
+if (!localStorage.getItem("lihobaronFarmStorage")) {
+  localStorage.setItem("lihobaronFarmStorage", JSON.stringify({
+    pšenice: 0, chmel: 0, kukuřice: 0, reva: 0, jablko: 0, hrušky: 0, švestky: 0,
+    meruňky: 0, broskve: 0, mrkev: 0, brambora: 0, rajčata: 0, chilli: 0,
+    okurky: 0, třešně: 0, cibule: 0, česnek: 0, jahody: 0
+  }));
+}
+if (!localStorage.getItem("lihobaronFarmSeeds")) {
+  localStorage.setItem("lihobaronFarmSeeds", JSON.stringify({
+    pšenice: 0, chmel: 0, kukuřice: 0, reva: 0, jablko: 0, hruška: 0, švestka: 0,
+    meruňka: 0, broskev: 0, mrkev: 0, brambora: 0, rajčata: 0, chilli: 0,
+    okurky: 0, třešně: 0, cibule: 0, česnek: 0, jahody: 0
+  }));
+}
+if (!localStorage.getItem("lihobaronFarmXP")) {
+  localStorage.setItem("lihobaronFarmXP", 0);
+}
+if (!localStorage.getItem("lihobaronFarmCoins")) {
+  localStorage.setItem("lihobaronFarmCoins", 200);
+}
+if (!localStorage.getItem("lihobaronPi")) {
+  localStorage.setItem("lihobaronPi", 200);
+}
+function getMoney() {
+  return +(localStorage.getItem("lihobaronFarmCoins") || 0);
+}
+function getPi() {
+  let val = localStorage.getItem("lihobaronPi");
+  if (!val) return 0;
+  try {
+    return JSON.parse(val);
+  } catch (e) {
+    return 0;
+  }
+}
+
+// Po načtení stránky zobrazíme zůstatky
+document.getElementById("money").textContent = getMoney();
+document.getElementById("pi-balance").textContent = getPi();
+
+const HOST_TYPES = [
+  {
+    emoji: "🪖",
+    name: "Soldier on Leave",
+    desc: "Army’s working hard, but tonight it’s party time!",
+    levels: [
+      { produkty: [{ produkt: "pivo", pocet: 2, nazev: "Beer" }], odmena: 80, obt: "easy" },
+      { produkty: [{ produkt: "pivo", pocet: 5, nazev: "Beer" }, { produkt: "palenka_broskve", pocet: 3, nazev: "Peach Brandy" }], odmena: 210, obt: "medium" },
+      { produkty: [{ produkt: "pivo", pocet: 16, nazev: "Beer" }, { produkt: "palenka_broskve", pocet: 6, nazev: "Peach Brandy" }, { produkt: "vino", pocet: 2, nazev: "Wine" }], odmena: 1600, obt: "hard" }
+    ]
+  },
+  {
+    emoji: "👩‍❤‍👨",
+    name: "Lovebirds on a Date",
+    desc: "Young couple wants something sweet to sip.",
+    levels: [
+      { produkty: [{ produkt: "vino", pocet: 2, nazev: "Wine" }], odmena: 150, obt: "easy" },
+      { produkty: [{ produkt: "vino", pocet: 5, nazev: "Wine" }, { produkt: "pivo", pocet: 4, nazev: "Beer" }], odmena: 350, obt: "medium" },
+      { produkty: [{ produkt: "vino", pocet: 8, nazev: "Wine" }, { produkt: "pivo", pocet: 8, nazev: "Beer" }, { produkt: "palenka_meruňky", pocet: 3, nazev: "Apricot brandy" }], odmena: 1050, obt: "hard" }
+    ]
+  },
+  {
+    emoji: "🧑‍🌾",
+    name: "Village Boozer",
+    desc: "Local legend. Will drink anything that flows.",
+    levels: [
+      { produkty: [{ produkt: "palenka_švestky", pocet: 2, nazev: "Slivowitz" }], odmena: 200, obt: "easy" },
+      { produkty: [{ produkt: "palenka_hrušky", pocet: 3, nazev: "Pear brandy" }, { produkt: "palenka_švestky", pocet: 3, nazev: "Slivowitz" }], odmena: 400, obt: "medium" },
+      { produkty: [{ produkt: "palenka_hrušky", pocet: 6, nazev: "Pear brandy" }, { produkt: "palenka_švestky", pocet: 7, nazev: "Slivowitz" }, { produkt: "pivo", pocet: 6, nazev: "Beer" }], odmena: 1250, obt: "hard" }
+    ]
+  },
+  {
+    emoji: "💼",
+    name: "Company Party",
+    desc: "Manager pays, accountant cries. Booze flows.",
+    levels: [
+      { produkty: [{ produkt: "pivo", pocet: 4, nazev: "Beer" }, { produkt: "vino", pocet: 2, nazev: "Wine" }], odmena: 400, obt: "easy" },
+      { produkty: [{ produkt: "pivo", pocet: 10, nazev: "Beer" }, { produkt: "vino", pocet: 3, nazev: "Wine" }], odmena: 700, obt: "medium" },
+      { produkty: [{ produkt: "pivo", pocet: 14, nazev: "Beer" }, { produkt: "vino", pocet: 4, nazev: "Wine" }, { produkt: "palenka_meruňky", pocet: 6, nazev: "Apricot brandy" }], odmena: 1650, obt: "hard" }
+    ]
+  },
+  {
+    emoji: "👴",
+    name: "Gramps Reminisces",
+    desc: "He remembers the first beer ever. Wants something strong.",
+    levels: [
+      { produkty: [{ produkt: "palenka_švestky", pocet: 2, nazev: "Slivowitz" }], odmena: 200, obt: "easy" },
+      { produkty: [{ produkt: "palenka_švestky", pocet: 5, nazev: "Slivowitz" }, { produkt: "pivo", pocet: 4, nazev: "Beer" }], odmena: 550, obt: "medium" },
+      { produkty: [{ produkt: "palenka_švestky", pocet: 8, nazev: "Slivowitz" }, { produkt: "vino", pocet: 4, nazev: "Wine" }], odmena: 910, obt: "hard" }
+    ]
+  },
+  {
+    emoji: "🎉",
+    name: "Bachelor Party",
+    desc: "Drink till someone loses a shoe.",
+    levels: [
+      { produkty: [{ produkt: "pivo", pocet: 3, nazev: "Beer" }], odmena: 150, obt: "easy" },
+      { produkty: [{ produkt: "pivo", pocet: 8, nazev: "Beer" }, { produkt: "palenka_broskve", pocet: 2, nazev: "Peach brandy" }], odmena: 510, obt: "medium" },
+      { produkty: [{ produkt: "pivo", pocet: 12, nazev: "Beer" }, { produkt: "palenka_broskve", pocet: 5, nazev: "Peach brandy" }, { produkt: "vino", pocet: 2, nazev: "Wine" }], odmena: 1400, obt: "hard" }
+    ]
+  },
+  {
+    emoji: "👩‍🎤",
+    name: "The Band",
+    desc: "Will play for drinks. Get them inspired.",
+    levels: [
+      { produkty: [{ produkt: "pivo", pocet: 6, nazev: "Beer" }, { produkt: "vino", pocet: 2, nazev: "Wine" }], odmena: 400, obt: "easy" },
+      { produkty: [{ produkt: "pivo", pocet: 10, nazev: "Beer" }, { produkt: "vino", pocet: 4, nazev: "Wine" }, { produkt: "palenka_meruňky", pocet: 3, nazev: "Apricot brandy" }], odmena: 810, obt: "medium" },
+      { produkty: [{ produkt: "pivo", pocet: 12, nazev: "Beer" }, { produkt: "vino", pocet: 2, nazev: "Wine" }, { produkt: "palenka_meruňky", pocet: 7, nazev: "Apricot brandy" }], odmena: 1100, obt: "hard" }
+    ]
+  },
+   {
+    emoji: "🍟",
+    name: "Fries & Fruit Lovers",
+    desc: "They crave fries and apricots.",
+    levels: [
+      { produkty: [{ produkt: "hranolky", pocet: 6, nazev: "Fries" }, { produkt: "pivo", pocet: 2, nazev: "Beer" }], odmena: 400, obt: "easy" },
+      { produkty: [{ produkt: "hranolky", pocet: 10, nazev: "Fries" }, { produkt: "pivo", pocet: 4, nazev: "Beer" }, { produkt: "palenka_meruňky", pocet: 3, nazev: "Apricot brandy" }], odmena: 810, obt: "medium" },
+      { produkty: [{ produkt: "hranolky", pocet: 12, nazev: "Fries" }, { produkt: "pivo", pocet: 2, nazev: "Beer" }, { produkt: "palenka_meruňky", pocet: 7, nazev: "Apricot brandy" }], odmena: 1100, obt: "hard" }
+    ]
+  },
+    {
+    emoji: "🧑‍💼",
+    name: "Office Folks Off-Duty",
+    desc: "Escaping the stamp-and-stress zone.",
+    levels: [
+      { produkty: [{ produkt: "pivo", pocet: 4, nazev: "Beer" }], odmena: 250, obt: "easy" },
+      { produkty: [{ produkt: "pivo", pocet: 8, nazev: "Beer" }, { produkt: "vino", pocet: 2, nazev: "Wine" }], odmena: 650, obt: "medium" },
+      { produkty: [{ produkt: "pivo", pocet: 14, nazev: "Beer" }, { produkt: "vino", pocet: 4, nazev: "Wine" }], odmena: 950, obt: "hard" }
+    ]
+  },
+  {
+    emoji: "🧑‍🚒",
+    name: "Volunteer Firefighters",
+    desc: "It was dry all week. Time to hydrate.",
+    levels: [
+      { produkty: [{ produkt: "pivo", pocet: 1, nazev: "Beer" }], odmena: 50, obt: "easy" },
+      { produkty: [{ produkt: "pivo", pocet: 6, nazev: "Beer" }, { produkt: "palenka_hrušky", pocet: 3, nazev: "Pear Brandy" }], odmena: 600, obt: "medium" },
+      { produkty: [{ produkt: "pivo", pocet: 10, nazev: "Beer" }, { produkt: "palenka_hrušky", pocet: 6, nazev: "Pear Brandy" }, { produkt: "palenka_švestky", pocet: 4, nazev: "Slivowitz" }], odmena: 1200, obt: "hard" }
+    ]
+  },
+ {
+  emoji: "🎬",
+  name: "Movie Night",
+  desc: "No popcorn, no show.",
+  levels: [
+    { produkty: [{ produkt: "popkorn", pocet: 2, nazev: "Popcorn" }], odmena: 140, obt: "easy" },
+    { produkty: [{ produkt: "popkorn", pocet: 5, nazev: "Popcorn" }, { produkt: "pivo", pocet: 3, nazev: "Beer" }], odmena: 420, obt: "medium" },
+    { produkty: [{ produkt: "popkorn", pocet: 8, nazev: "Popcorn" }, { produkt: "pivo", pocet: 6, nazev: "Beer" }, { produkt: "vino", pocet: 2, nazev: "Wine" }], odmena: 800, obt: "hard" }
+  ]
+},
+  {
+  emoji: "🍸",
+  name: "Party Hard",
+  desc: "Uncontrolled vodka flood.",
+  levels: [
+    { produkty: [{ produkt: "vodka_psenice", pocet: 2, nazev: "Vodka" }], odmena: 100, obt: "easy" },
+    { produkty: [{ produkt: "vodka_psenice", pocet: 5, nazev: "Vodka" }, { produkt: "pivo", pocet: 3, nazev: "Beer" }], odmena: 320, obt: "medium" },
+    { produkty: [{ produkt: "vodka_psenice", pocet: 8, nazev: "Vodka" }, { produkt: "pivo", pocet: 6, nazev: "Beer" }, { produkt: "vino", pocet: 2, nazev: "Wine" }], odmena: 800, obt: "hard" }
+  ]
+},
+    {  emoji: "🥃",
+  name: "Sailor’s Bash",
+  desc: "RUM, RUM, and more RUM.",
+  levels: [
+    { produkty: [{ produkt: "rum_brambora", pocet: 2, nazev: "Rum" }], odmena: 100, obt: "easy" },
+    { produkty: [{ produkt: "rum_brambora", pocet: 5, nazev: "Rum" }, { produkt: "pivo", pocet: 3, nazev: "Beer" }], odmena: 320, obt: "medium" },
+    { produkty: [{ produkt: "rum_brambora", pocet: 8, nazev: "Rum" }, { produkt: "pivo", pocet: 6, nazev: "Beer" }, { produkt: "vino", pocet: 2, nazev: "Wine" }], odmena: 800, obt: "hard" }
+  ]
+},
+    {   emoji: "🍻",
+  name: "TEAM Building",
+  desc: "Corn? Now that’s a feast.",
+  levels: [
+    { produkty: [{ produkt: "whiskey_kukurice", pocet: 2, nazev: "Whiskey" }], odmena: 150, obt: "easy" },
+    { produkty: [{ produkt: "whiskey_kukurice", pocet: 5, nazev: "Whiskey" }, { produkt: "popkorn", pocet: 3, nazev: "Popcorn" }], odmena: 470, obt: "medium" },
+    { produkty: [{ produkt: "whiskey_kukurice", pocet: 8, nazev: "Whiskey" }, { produkt: "pivo", pocet: 6, nazev: "Beer" }, { produkt: "popkorn", pocet: 2, nazev: "Popcorn" }], odmena: 800, obt: "hard" }
+  ]
+},
+    {
+    emoji: "👸",
+    name: "VIP Gala",
+    desc: "Fancy drinks for the fancy folks.",
+    levels: [
+      { produkty: [{ produkt: "vino", pocet: 4, nazev: "Wine" }], odmena: 300, obt: "easy" },
+      { produkty: [{ produkt: "vino", pocet: 5, nazev: "Wine" }, { produkt: "palenka_meruňky", pocet: 3, nazev: "Apricot brandy" }], odmena: 600, obt: "medium" },
+      { produkty: [{ produkt: "vino", pocet: 8, nazev: "Wine" }, { produkt: "palenka_meruňky", pocet: 7, nazev: "Apricot brandy" }, { produkt: "pivo", pocet: 10, nazev: "Beer" }], odmena: 1500, obt: "hard" }
+    ]
+  }
+];
+// ------- CENÍK PRODUKTŮ ----------
+var prices = {
+   pšenice: 4, chmel: 9, kukuřice: 12, reva: 12, broskve: 20, meruňky: 18, jablko: 13, hrušky: 13, švestky: 13, mrkev: 9, brambora: 11,  rajčata: 12, chilli: 15, okurky: 13,
+      cibule: 14, česnek: 16, jahody: 25, třešně: 15,
+      kvas_pivo: 18, most_vino: 45,
+      kvas_švestky: 17, kvas_hrušky: 15, kvas_meruňky: 18, kvas_broskve: 19,
+      pivo: 32, vino: 60, popkorn: 50, hranolky: 60,
+      palenka_švestky: 46, palenka_hrušky: 44, palenka_meruňky: 48, palenka_broskve: 50,  palenka_jablka: 44, vodka_psenice: 35, whiskey_kukurice: 40, rum_brambora: 42
+};
+// ---------------------------------
+
+
+
+// --- Funkce na generování hosta ---
+function generujHosta() {
+  var typ = HOST_TYPES[Math.floor(Math.random() * HOST_TYPES.length)];
+  var level = typ.levels[Math.floor(Math.random() * typ.levels.length)];
+  return {
+    emoji: typ.emoji,
+    name: typ.name,
+    desc: typ.desc,
+    order: level.produkty,
+    obt: level.obt
+  };
+}
+
+var MAX_HOSTU = 3;
+
+// --- ULOŽENÍ A NAČTENÍ HOSTŮ ---
+function ulozHosty() {
+  localStorage.setItem("lihobaronPubHosti", JSON.stringify(aktHosti));
+}
+function nactiHosty() {
+  var hosti = localStorage.getItem("lihobaronPubHosti");
+  if (hosti) return JSON.parse(hosti);
+  var arr = [];
+  for (var i = 0; i < MAX_HOSTU; i++) arr.push(generujHosta());
+  localStorage.setItem("lihobaronPubHosti", JSON.stringify(arr));
+  return arr;
+}
+
+var aktHosti = nactiHosty();
+
+function getSklad() {
+  return JSON.parse(localStorage.getItem("lihobaronFarmStorage") || "{}");
+}
+function getPrachy() {
+  return Number(localStorage.getItem("lihobaronFarmCoins") || 0);
+}
+function setPrachy(kolik) {
+  localStorage.setItem("lihobaronFarmCoins", kolik);
+}
+function setSklad(obj) {
+  localStorage.setItem("lihobaronFarmStorage", JSON.stringify(obj));
+}
+
+// --- VÝPOČET ODMĚNY ---
+function vypocetOdmeny(order) {
+  var hodnota = 0;
+  for (var i = 0; i < order.length; i++) {
+    var klic = order[i].produkt;
+    hodnota += (prices[klic] || 0) * order[i].pocet;
+  }
+  // Marže +15 %
+  return Math.round(hodnota * 1.15);
+}
+
+function renderPubCards() {
+  var html = "";
+  for (var idx = 0; idx < aktHosti.length; idx++) {
+    var host = aktHosti[idx];
+    var sklad = getSklad();
+    var dost = true;
+    var produkty = "";
+    var odmena = vypocetOdmeny(host.order);
+
+    for (var j = 0; j < host.order.length; j++) {
+      var zak = host.order[j];
+      var skladPocet = sklad[zak.produkt] || 0;
+      if (skladPocet < zak.pocet) dost = false;
+      produkty += "<li>" + zak.nazev + ": <b>" + skladPocet + "</b> / <b>" + zak.pocet + "</b></li>";
+    }
+    html +=
+  '<div class="pub-card" id="host' + idx + '">' +
+    '<div class="header"><div class="img">' + host.emoji + '</div>' +
+      '<div><b>' + host.name + '</b> <span style="font-size:0.85em;color:#2989c5;">(' + host.obt + ')</span></div>' +
+    '</div>' +
+    '<div class="desc">' + host.desc + '</div>' +
+    '<ul style="margin-left:10px;">' + produkty + '</ul>' +
+    '<div class="odmena" style="margin:8px 0;font-size:1.1em;"><b>Reward: ' + odmena + ' $</b></div>' +
+    '<div class="btn-row">' +
+      '<button onclick="splnitZakazku(' + idx + ')" ' + (dost ? '' : 'disabled') + '>Serve Order</button>' +
+      '<button class="reject" style="display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:bold;font-size:1.08em;" onclick="kickOutDollar(' + idx + ')">' +
+        'Kick Out<span style="font-size:0.95em; font-weight:normal;">($100)</span>' +
+      '</button>' +
+      '<button class="reject" style="background:#cb8d0b;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:bold;font-size:1.08em;" onclick="kickOutPi(' + idx + ')">' +
+        'Kick Out<span style="font-size:0.95em; font-weight:normal;">(5 ϖ)</span>' +
+      '</button>' +
+    '</div>' +
+    '<div id="alert' + idx + '"></div>' +
+  '</div>';
+      }
+  document.getElementById("pubCards").innerHTML = html;
+}
+
+// Splnění zakázky
+window.splnitZakazku = function(idx) {
+  var host = aktHosti[idx];
+  var sklad = getSklad();
+  var dost = true;
+  for (var j = 0; j < host.order.length; j++) {
+    var zak = host.order[j];
+    if ((sklad[zak.produkt] || 0) < zak.pocet) {
+      dost = false;
+      break;
+    }
+  }
+  var odmena = vypocetOdmeny(host.order);
+  if (dost) {
+    for (var j = 0; j < host.order.length; j++) {
+      var zak = host.order[j];
+      sklad[zak.produkt] = (sklad[zak.produkt] || 0) - zak.pocet;
+    }
+    setSklad(sklad);
+    var prachy = getPrachy() + odmena;
+    setPrachy(prachy);
+    document.getElementById("alert" + idx).innerHTML =
+      '<div class="done"><span class="icon">✅</span> Order completed! +' + odmena + ' $</div>';
+    setTimeout(function() { vyhoditHosta(idx, true); }, 1100);
+  } else {
+    var chybi = [];
+    for (var j = 0; j < host.order.length; j++) {
+      var zak = host.order[j];
+      if ((sklad[zak.produkt] || 0) < zak.pocet) {
+        chybi.push(zak.nazev + " (" + (zak.pocet - (sklad[zak.produkt] || 0)) + ")");
+      }
+    }
+    document.getElementById("alert" + idx).innerHTML =
+      '<div class="alert"><span class="icon">❗</span> Missing: ' + chybi.join(", ") + '</div>';
+  }
+};
+
+// Vyhození hosta = vygeneruj nového (náhodný typ + obtížnost)
+window.vyhoditHosta = function(idx, splneno) {
+  aktHosti[idx] = generujHosta();
+  ulozHosty();
+  renderPubCards();
+};
+
+renderPubCards();
+window.kickOutDollar = function(idx) {
+  var balance = getMoney();  // POZOR, getMoney, ne getPrachy!
+  if (balance >= 100) {
+    localStorage.setItem("lihobaronFarmCoins", balance - 100);
+    vyhoditHosta(idx, true);
+    document.getElementById("money").textContent = getMoney();
+  } else {
+    document.getElementById("alert" + idx).innerHTML =
+      '<div class="alert"><span class="icon">❗</span> Not enough money!</div>';
+  }
+};
+
+window.kickOutPi = function(idx) {
+  var pi = getPi();
+  if (pi >= 5) {
+    localStorage.setItem("lihobaronPi", pi - 5);
+    vyhoditHosta(idx, true);
+    document.getElementById("pi-balance").textContent = getPi();
+  } else {
+    document.getElementById("alert" + idx).innerHTML =
+      '<div class="alert"><span class="icon">❗</span> Not enough Pi coins!</div>';
+  }
+};
+
+window.addEventListener("storage", function(e) {
+  if (e.key === "lihobaronFarmStorage") renderPubCards();
+});
+document.addEventListener("visibilitychange", function() {
+  if (!document.hidden) renderPubCards();
+});
+window.addEventListener("storage", function() {
+  document.getElementById("money").textContent = getMoney();
+  document.getElementById("pi-balance").textContent = getPi();
+});
+
+</script>
+</body>
+</html>

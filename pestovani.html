@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<title>Drunk - Punk</title>
+ <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<style>
+  body { background:#f7f6f3; font-family:'Segoe UI',Arial,sans-serif; text-align:center; margin:0; padding:0; position:relative;}
+ h1 { text-align: center; color: #208278; margin-top: 20px; }
+  .desc {color:#836341;margin-bottom:12px; font-size:1em;}
+  .xpbar {margin-bottom:12px; color:#517d23; font-weight:600;}
+  .storagebar {margin-bottom:18px; color:#5d4c2e; font-size:0.99em;}
+  .farm {
+  display:grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(5, 84px);
+  gap: 45px 10px;      /* první číslo = výška mezery mezi řádky (větší), druhé číslo = mezi sloupci */
+  justify-content:center;
+  align-items: center;
+  width:97vw;
+  max-width:380px;
+  margin: 30px auto 21px auto;
+
+}
+
+  .plot {
+    background:#cdb391;
+    border-radius:10px;
+    box-shadow:0 2px 8px #bbb6ac55;
+    position:relative;
+    cursor:pointer;
+    transition:box-shadow .18s;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    min-width:68px; min-height:70px;
+    max-width:90px; max-height:120px;
+    margin:0 auto;
+    font-size:1.03em;
+  }
+  .plot.empty:hover { box-shadow:0 4px 16px #b3e68288; }
+  .plot.chmel { background:#7bb661; }
+  
+  .plot.broskev  { background: #ffa940; }   /* oranžová broskev */
+.plot.meruňka  { background: #ffb3d1; }   /* růžová meruňka */
+.plot.švestka  { background: #a77ee6; }   /* fialová švestka */
+.plot.hruška   { background: #ffe47a; }   /* žlutá hruška */
+  .plot.reva { background: #d06292; }
+  .plot.pole { background:#e3c784; }
+  .plot.kukuřice { background:#e0c86e; }
+  .plot.mrkev    { background: #ffa62b; }  /* oranžová, ale jiná než broskev */
+  .plot.brambora { background: #d8c07a; }  /* světlá bramborová */
+  .plot.rajčata  { background: #ff5c5c; }  /* rajčatově červená */
+  .plot.chilli   { background: #d70000; }  /* pekelně rudá */
+  .plot.okurky   { background: #77dd77; }  /* svěží zelená, jiná než chmel */
+  .plot.třešně     { background: #b04285; }  /* fialovorůžová, úplně jiná než švestka */
+  .plot.cibule   { background: #eedc82; }  /* cibulově zlatá */
+  .plot.česnek   { background: #f5f5dc; }  /* krémová jako slupka česneku */
+  .plot.jahody   { background: #ff3f34; }  /* sytě jahodová */
+  .crop-emoji {font-size:2em;}
+  .progress-bg {width:50px;height:9px;background:#eee;border-radius:8px;margin-top:7px;position:relative;}
+  .progress-fg {height:9px;background:#7bb661;border-radius:8px;transition:width .2s;}
+  .harvest-btn {
+    margin-top:4px;
+    background:#8b5d2a;
+    color:#fff;
+    border:none;
+    border-radius:6px;
+    padding:5px 8px;
+    font-weight:600;
+    cursor:pointer;
+    font-size:0.97em;
+    box-shadow:0 1.5px 4px #b96c3a22;
+    transition:background .13s;
+  }
+  .harvest-btn:hover { background:#3d260b; }
+  
+ .select-crop,
+.shop-modal {
+  background: #fff;
+  border: 2px solid #cdb391;
+  border-radius: 13px;
+  box-shadow: 0 3px 18px #66421025;
+  padding: 14px 8px 10px 8px;
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  width: 90vw;
+  max-width: 360px;
+  min-width: unset;
+  max-height: 75vh;
+  overflow-y: auto;
+}
+
+  .select-crop-title, .shop-title {font-size:1.13em;margin-bottom:9px;color:#836341;}
+  .crop-option-btn, .shop-btn {
+    display:block;
+    margin:7px 0;
+    padding:9px 0 7px 0;
+    width:97%;
+    background:#e8e8e0;
+    border:none;
+    border-radius:9px;
+    font-size:1.04em;
+    cursor:pointer;
+    transition:background .11s;
+  }
+ .shop-btn-barevny {
+  background: #2196f3;      /* modrá */
+  color: #fff;
+  border: none;
+  border-radius: 4px;       /* lehce zaoblené rohy, klidně i 0px když chceš total hranaté */
+  padding: 10px 18px;
+  font-size: 1.12em;
+  font-weight: bold;
+  margin: 7px 0;
+  cursor: pointer;
+  box-shadow: 0 2px 8px #0001;
+  transition: background 0.18s;
+}
+.shop-btn-barevny:hover {
+  background: #2e8647;      /* tmavší po přejetí */
+}
+  
+  
+  .crop-option-btn:hover, .shop-btn:hover { background:#e90511; }
+  .close-btn {
+    background: #b7b7b7;
+    color: #fff;
+    border: none;
+    border-radius: 7px;
+    font-size: 0.93em;
+    margin-top: 6px;
+    padding: 3px 18px;
+    cursor: pointer;
+  }
+  /* Navigace */
+  .nav-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    background: #2196f3;
+    color: white;
+    display: flex;
+    justify-content: flex-end;
+    gap: 2px;
+    z-index: 1000;
+    box-shadow: 0 2px 8px #0002;
+    padding: 7px 0;
+  }
+  .nav-link {
+    color: white;
+    padding: 7px 24px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.07em;
+    border-radius: 0 0 10px 10px;
+    transition: background 0.18s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-row {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin: 18px auto 30px auto;
+  max-width: 95vw;
+}
+.btn-row-male {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 13px auto 30px auto;
+  max-width: 99vw;
+}
+
+.male-btn {
+  padding: 18px 10px;
+  font-size: 1em;
+  font-weight: bold;
+  color: #fff;
+  background: linear-gradient(90deg, #69a7ff 0%, #2992fc 100%);
+  border: none;
+  border-radius: 9px;
+  box-shadow: 0 2px 7px #1977d633;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.16s, transform 0.10s;
+  letter-spacing: 0.01em;
+  display: inline-block;
+  width: 350px;   /* ✨ tady fixneš šířku */
+  margin: 0;
+}
+
+
+.male-btn.help-btn {
+  background: linear-gradient(90deg, #a9db91 0%, #58c21e 100%);
+  color: #226e29;
+  width: 130px;         /* uprav šířku podle potřeby */
+  padding: 8px 12px;   /* výška – změň horní a dolní padding */
+  font-size: 1em;       /* můžeš doladit i velikost textu */
+}
+
+
+
+.male-btn:hover {
+  filter: brightness(1.12) saturate(1.18);
+  transform: translateY(-2px) scale(1.04);
+}
+
+@media (max-width: 600px) {
+  .btn-row-male {
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .male-btn {
+    font-size: 0.97em;
+    padding: 7px 3px;
+    min-width: 85px;
+  }
+}
+.shop-btn {
+  width: 100%;
+  max-width: 350px;   /* nebo kolik chceš, třeba 220px */
+  margin: 7px auto;
+  display: block;
+}
+
+.shop-header {
+  font-size: 0.95em;
+  font-weight: bold;
+  color: #1760a3;
+  margin-bottom: 8px;
+}
+
+.shop-message {
+  margin-top: 6px;
+  font-size: 0.93em;
+  color: #2b4e1d;
+}
+
+.btn-boost {
+  background: #f44336;         /* červená */
+  color: #fff;
+  border: none;
+  border-radius: 9px;
+  padding: 10px 18px;
+  font-size: 1.05em;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 8px #0001;
+  transition: background 0.18s;
+}
+.btn-boost:hover {
+  background: #c62828;         /* tmavší červená */
+}
+
+.big-btn {
+  flex: 1 1 240px;
+  max-width: 420px;
+  min-width: 120px;
+  padding: 18px 0 16px 0;
+  font-size: 1.18em;
+  font-weight: bold;
+  color: #fff;
+  background: linear-gradient(90deg, #69a7ff 0%, #2992fc 100%);
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 3px 14px #1977d633;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.16s, transform 0.12s;
+  letter-spacing: 0.03em;
+  display: block;
+}
+.big-btn.help-btn {
+  background: linear-gradient(90deg, #a9db91 0%, #58c21e 100%);
+  color: #226e29;
+}
+.big-btn:hover {
+  filter: brightness(1.10) saturate(1.2);
+  transform: translateY(-3px) scale(1.03);
+}
+@media (max-width: 700px) {
+  .btn-row {
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .big-btn {
+    font-size: 1em;
+    padding: 14px 0 13px 0;
+    max-width: 98vw;
+  }
+}
+  .nav-link.active, .nav-link:hover {
+    background: #1760a3;
+  }
+  body { padding-top: 48px; }
+  @media (max-width:600px) {
+  .nav-bar { justify-content: center; flex-wrap: wrap; font-size: 0.97em; }
+  .nav-link { padding: 7px 8px; font-size: 1em;}
+}
+
+body { padding-top: 48px; }
+.sekce { background: #fff; border-radius: 14px; box-shadow: 0 2px 16px #b7d9db35; margin: 20px auto 0 auto; padding: 18px 16px 15px 16px; max-width: 430px;}
+.sekce h2 {margin-top:0;}
+.list {margin:8px 0;}
+.polozka {padding: 5px 0 5px 0; font-size: 1.08em; border-bottom: 1px solid #eee; display:flex;align-items:center;}
+.ikona {font-size: 1.22em; margin-right:7px;}
+.none {color:#aaa;}
+
+@media (max-width:600px){
+  body { padding-top: 90px; }    /* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
+  .sekce { padding:10px; }
+  .nav-link { padding:7px 8px;font-size:1em; }
+
+   .shop-btn {
+    width: 98vw !important;
+    font-size: 1.08em !important;
+    padding: 16px 6px !important;
+    display: block !important;
+    margin: 10px auto 24px auto !important;
+  }
+
+
+</style>
+</head>
+<body>
+<div class="nav-bar">
+  <a href="pestovani.html" class="nav-link active">🌱 Grow Sh*t</a>
+  <a href="vyroba.html" class="nav-link">⚗️ Brewing</a>
+  <a href="jzd.html" class="nav-link">🐷 Coop</a>
+  <a href="sklad.html" class="nav-link">📦 Stash</a>
+  <a href="finance.html" class="nav-link">💰 Wallet</a>
+  <a href="hotel.html" class="nav-link">🏨 Motel</a>
+  <a href="pub.html" class="nav-link">🏡 Bar</a>
+  <a href="market.html" class="nav-link">🏪 Bazaar</a>
+</div>
+
+<div class="btn-row-male" style="margin-top: 10px; flex-wrap: wrap; gap: 10px;">
+  <a href="index.html" class="male-btn help-btn">⬅️ Back</a>
+  <button onclick="activateFarmBoost()" class="btn-boost">⚡ Boost Farm (+4 plots / 24h) – (20ϖ)</button>
+</div>
+
+
+<h1>🌱 Grow Sh*t</h1>
+
+<div id="balances" style="text-align:center; margin: 10px 0; font-weight: bold; font-size: 1.2em;">
+  <b>💵 Balance: <span id="stavPrachy"></span><br>
+  🪙 PI Coins: <span id="pi-balance"></span></b> 
+</div>
+<div id="boost-timer" style="color:#2b4e1d;font-weight:bold;margin-top:6px;font-size:0.96em;"></div>
+
+<div class="btn-row-male">
+  <a href="#" onclick="openShop()" class="male-btn shop-btn">🛒 Seed Shop 🌱</a>
+</div>
+
+<div class="farm" id="farm"></div>
+
+<!-- Výběr plodiny -->
+<div id="selectCropModal" class="select-crop" style="display:none;">
+  <div class="select-crop-title">What to Plant?</div>
+  <div id="cropOptions"></div>
+  <button class="close-btn" onclick="closePlantMenu()">Close</button>
+</div>
+
+<!-- Obchod se semeny -->
+<div id="shopModal" class="shop-modal" style="display:none;">
+  <div class="shop-title">Seed Shop 🌱</div>
+
+  <div class="shop-header" style="position:sticky; top:0; background:white; z-index:10; padding-bottom: 6px;">
+    <div class="shop-balance">💰 Balance: <span id="shopBalanceValue">0</span> $</div>
+    <div id="shopMessage" class="shop-message"></div>
+  </div>
+
+  <div id="shopList" style="max-height: 60vh; overflow-y: auto; overflow-x: hidden; padding-right: 5px;"></div>
+
+  <button class="close-btn" onclick="closeShop()">Close</button>
+</div>
+
+
+
+
+<script>
+let plots = [];
+let PLOTS_COUNT = 20;
+const cropsData = {
+  
+  "pšenice": {emoji: "🌾", growTime: 120, class: "pole", storage: "pšenice", xp: 2, display:"Wheat"},
+  "chmel": {emoji: "🍃", growTime: 300, class: "chmel", storage: "chmel", xp: 4, display:"Hop"},
+  "kukuřice": {emoji: "🌽", growTime: 420, class: "kukuřice", storage: "kukuřice", xp: 5, display: "Corn"},
+  "mrkev": { emoji: "🥕", growTime: 320, class: "mrkev", storage: "mrkev", xp: 6, display: "Carrot" },
+  "brambora": { emoji: "🥔", growTime: 510, class: "brambora", storage: "brambora", xp: 7, display: "Potato" },
+  "rajčata": { emoji: "🍅", growTime: 710, class: "rajčata", storage: "rajčata", xp: 8, display: "Tomato" },
+  "chilli": { emoji: "🌶", growTime: 910, class: "chilli", storage: "chilli", xp: 10, display: "Chilli" },
+  "okurky": { emoji: "🥒", growTime: 760, class: "okurky", storage: "okurky", xp: 7, display: "Cucumber" },
+  "třešně": { emoji: "🍒", growTime: 1030, class: "třešně", storage: "třešně", xp: 11, display: "Cherries" },
+  "cibule": { emoji: "🧅", growTime: 880, class: "cibule", storage: "cibule", xp: 6, display: "Onion" },
+  "česnek": { emoji: "🧄", growTime: 1220, class: "česnek", storage: "česnek", xp: 9, display: "Garlic" },
+  "jahody": { emoji: "🍓", growTime: 1510, class: "jahody", storage: "jahody", xp: 14, display: "Strawberry" },
+  "reva": {emoji: "🍇", growTime: 570, class: "reva", storage: "reva", xp: 15, display:"Grapes"},
+  "jablko": {emoji: "🍎", growTime: 870, class: "jablko", storage: "jablko", xp: 7, display: "Apple" },
+  "hruška": {emoji: "🍐", growTime: 920, class: "hruška", storage: "hrušky", xp: 8, display:"Pear"},
+  "švestka": {emoji: "🟣", growTime: 1040, class: "švestka", storage: "švestky", xp: 14, display:"Plum"},
+  "meruňka": {emoji: "🍑", growTime: 1210, class: "meruňka", storage: "meruňky", xp: 18, display:"Apricot"},
+  "broskev": {emoji: "🍊", growTime: 1360, class: "broskev", storage: "broskve", xp: 20, display:"Peach"}
+};
+
+  
+
+const seedsPrices = { "pšenice": 2, "chmel": 4, "kukuřice": 6, "reva": 6, "jablko": 7, "hruška": 9, "mrkev": 4, "brambora": 6, "rajčata": 7, "chilli": 9, "okurky": 7, "třešně": 9, 
+"cibule": 8, "česnek": 10, "jahody": 12, "švestka": 9, "meruňka": 9, "broskev": 11 };
+let storage = { pšenice: 0, chmel: 0, kukuřice: 0, reva: 0, jablko: 0, hrušky: 0, švestky: 0, meruňky: 0, broskve: 0, mrkev: 0, brambora: 0, rajčata: 0, chilli: 0, okurky: 0,
+  třešně: 0, cibule: 0, česnek: 0, jahody: 0 };
+let seeds = { pšenice: 0, chmel: 0, kukuřice: 0, reva: 0, jablko: 0, hruška: 0, švestka: 0, meruňka: 0, broskev: 0, mrkev: 0, brambora: 0, rajčata: 0, chilli: 0, okurky: 0,
+třešně: 0, cibule: 0, česnek: 0, jahody: 0 };
+let xp = 0;
+let coins = 200;
+if (!localStorage.getItem("lihobaronPi")) {
+  localStorage.setItem("lihobaronPi", "200");
+}
+if (!localStorage.getItem("lihobaronFarmCoins")) {
+  localStorage.setItem("lihobaronFarmCoins", "200");
+}
+
+
+function saveGame() {
+  localStorage.setItem('lihobaronFarmPlots', JSON.stringify(plots));
+  localStorage.setItem('lihobaronFarmStorage', JSON.stringify(storage));
+  localStorage.setItem('lihobaronFarmSeeds', JSON.stringify(seeds));
+  localStorage.setItem('lihobaronFarmXP', xp);
+  localStorage.setItem('lihobaronFarmCoins', coins);
+ stavPrachy();
+}
+function loadGame() {
+  // Nejprve zjisti, jestli běží boost
+  const boostEnd = parseInt(localStorage.getItem("farmBoostUntil") || "0");
+  const now = Date.now();
+  if (boostEnd && now < boostEnd) {
+    PLOTS_COUNT = 24;
+  } else {
+    PLOTS_COUNT = 20;
+    localStorage.removeItem("farmBoostUntil");
+  }
+
+  // ✅ Načti plodiny nebo vytvoř nové pole, když žádné nejsou
+  const p = localStorage.getItem('lihobaronFarmPlots');
+  if (p) {
+    plots = JSON.parse(p);
+  } else {
+    plots = Array(PLOTS_COUNT).fill().map(() => ({
+      crop: null,
+      grow: 0,
+      growing: false,
+      startTime: 0
+    }));
+  }
+
+  // Načti zbytek
+  const s = localStorage.getItem('lihobaronFarmStorage');
+  if (s) storage = JSON.parse(s);
+
+  const d = localStorage.getItem('lihobaronFarmSeeds');
+  if (d) seeds = JSON.parse(d);
+
+  const x = localStorage.getItem('lihobaronFarmXP');
+  if (x) xp = parseInt(x);
+
+  const c = localStorage.getItem('lihobaronFarmCoins');
+  if (c) coins = parseInt(c);
+
+  // ✂️ Přidej nebo zkrať pole podle aktuálního limitu
+  if (plots.length < PLOTS_COUNT) {
+    for (let i = plots.length; i < PLOTS_COUNT; i++) {
+      plots.push({ crop: null, grow: 0, growing: false, startTime: 0 });
+    }
+  } else if (plots.length > PLOTS_COUNT) {
+    plots = plots.slice(0, PLOTS_COUNT);
+  }
+
+  saveGame(); // aby se případné doplnění/snížení uložilo
+}
+
+function updateXPBar() {
+  document.getElementById("xpBar").textContent = `XP: ${xp}`;
+}
+function updateStorageBar() {
+  document.getElementById("storageBar").textContent =
+    `Ve skladu: ` +
+    Object.keys(storage)
+      .map(k => `${cropsData[k].emoji} ${storage[k]}`)
+      .join(" ");
+}
+function formatTime(secs) {
+  if (secs < 60) return secs + "s";
+  let min = Math.floor(secs/60);
+  let s = secs % 60;
+  return min + "m " + s + "s";
+}
+function renderFarm() {
+  const farmDiv = document.getElementById("farm");
+  farmDiv.innerHTML = "";
+  plots.forEach((plot, i) => {
+    const el = document.createElement("div");
+    el.className = "plot" +
+      (plot.crop ? ` ${cropsData[plot.crop].class}` : " empty");
+    if (!plot.crop) {
+      el.innerHTML = "<span style='color:#c2b28f'>empty</span>";
+      el.onclick = () => openPlantMenu(i);
+    } else {
+      el.innerHTML =
+        `<span class="crop-emoji">${cropsData[plot.crop].emoji}</span>
+        <span>${cropsData[plot.crop].display}</span>
+        <div class="progress-bg">
+          <div class="progress-fg" style="width:${Math.floor(100*plot.grow/cropsData[plot.crop].growTime)}%"></div>
+        </div>
+        ${(plot.growing && plot.grow < cropsData[plot.crop].growTime) 
+          ? `<div style="font-size:.94em;color:#2b4e1d;margin-top:3px;">
+              ⏳ Left: ${formatTime(cropsData[plot.crop].growTime - plot.grow)}
+            </div>` : ""}`;
+      if (!plot.growing && plot.grow >= cropsData[plot.crop].growTime) {
+        const btn = document.createElement("button");
+        btn.textContent = "Harvest It";
+        btn.className = "harvest-btn";
+        btn.onclick = () => harvest(i);
+        el.appendChild(btn);
+      }
+    }
+    farmDiv.appendChild(el);
+  });
+}
+function openPlantMenu(idx) {
+  const cropOptsDiv = document.getElementById("cropOptions");
+  cropOptsDiv.innerHTML = "";
+  Object.keys(cropsData).forEach(crop => {
+    if (seeds[crop] > 0) {
+      const btn = document.createElement("button");
+      btn.className = "crop-option-btn";
+      btn.innerHTML = `${cropsData[crop].emoji} ${cropsData[crop].display} <span style="color:#776;">(${seeds[crop]})</span>`;
+      btn.onclick = () => plantCrop(idx, crop);
+      cropOptsDiv.appendChild(btn);
+    }
+  });
+  document.getElementById("selectCropModal").style.display = "block";
+}
+function closePlantMenu() {
+  document.getElementById("selectCropModal").style.display = "none";
+}
+function plantCrop(idx, crop) {
+  if (seeds[crop] <= 0) return;
+  plots[idx] = {
+    crop,
+    grow: 0,
+    growing: true,
+    startTime: Date.now()
+  };
+  seeds[crop]--;
+  saveGame();
+  closePlantMenu();
+  renderFarm();
+  updateStorageBar();
+}
+function harvest(idx) {
+  const crop = plots[idx].crop;
+  storage[cropsData[crop].storage]++;
+  xp += cropsData[crop].xp;
+  plots[idx] = { crop: null, grow: 0, growing: false, startTime: 0 };
+  saveGame();
+  renderFarm();
+  updateStorageBar();
+  updateXPBar();
+}
+
+// ----------- OBCHOD BEZ ZÁVOREK, s HLÁŠKOU -----------
+function openShop() {
+  // Načíst aktuální hodnoty
+  seeds = JSON.parse(localStorage.getItem('lihobaronFarmSeeds')) || seeds;
+  coins = parseInt(localStorage.getItem('lihobaronFarmCoins')) || coins;
+
+  const shopDiv = document.getElementById("shopList");
+  shopDiv.innerHTML = "";
+
+  // Zobrazit zůstatek
+  document.getElementById("shopBalanceValue").textContent = coins;
+
+  // Vymazat předchozí zprávu
+  document.getElementById("shopMessage").textContent = "";
+
+  Object.keys(seedsPrices).forEach(crop => {
+    const btn = document.createElement("button");
+    btn.className = "shop-btn";
+    btn.innerHTML = `${cropsData[crop].emoji} Seed ${cropsData[crop].display} – <b>${seedsPrices[crop]} $</b>`;
+    btn.onclick = () => {
+      if (coins >= seedsPrices[crop]) {
+        coins -= seedsPrices[crop];
+        seeds[crop]++;
+        saveGame();
+        document.getElementById("shopBalanceValue").textContent = coins;
+        document.getElementById("shopMessage").innerHTML = `✅ Seed ${cropsData[crop].display} Bought!`;
+        updateStorageBar();
+        updateXPBar();
+        stavPrachy(); // aktualizace i mimo modal
+      } else {
+        document.getElementById("shopMessage").innerHTML = "❌ Not Enough Cash, Bro!";
+      }
+    };
+    shopDiv.appendChild(btn);
+  });
+
+  document.getElementById("shopModal").style.display = "block";
+}
+
+
+function closeShop() {
+  document.getElementById("shopModal").style.display = "none";
+}
+function stavPrachy() {
+  document.getElementById("stavPrachy").innerText = coins + " $";
+}
+function updateBoostTimer() {
+  const boostEnd = parseInt(localStorage.getItem("farmBoostUntil") || "0");
+  const now = Date.now();
+
+  const el = document.getElementById("boost-timer");
+  if (!el) return;
+
+  if (boostEnd > now) {
+    const diff = boostEnd - now;
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    el.textContent = `⚡ Boost active! (+4 plots) for ${hours}h ${minutes}m ${seconds}s`;
+  } else {
+    el.textContent = "";
+    localStorage.removeItem("farmBoostUntil"); // smaž boost flag
+    loadGame();     // znovu načti stav + PLOTS_COUNT na 20
+    renderFarm();   // překresli farmu s 20 záhony
+  }
+}
+
+
+
+function getPi() {
+  return parseInt(localStorage.getItem("lihobaronPi") || "0");
+}
+
+
+function renderPiBalance() {
+  document.getElementById("pi-balance").innerText = getPi() + " ϖ";
+}
+function activateFarmBoost() {
+  const currentPi = getPi();
+  const now = Date.now();
+  const boostEnd = parseInt(localStorage.getItem("farmBoostUntil") || "0");
+
+ if (boostEnd > now) {
+  const diff = boostEnd - now;
+  const h = Math.floor(diff / (1000 * 60 * 60));
+  const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  const s = Math.floor((diff % (1000 * 60)) / 1000);
+  alert(`⚠️ Boost už běží! Zbývá ${h}h ${m}m ${s}s.`);
+  return;
+}
+
+
+
+  if (currentPi < 20) {
+    alert("❌ Not enough Pi Coins!");
+    return;
+  }
+
+  const newBoostEnd = now + 24 * 60 * 60 * 1000; // 24 hodin
+  localStorage.setItem("farmBoostUntil", newBoostEnd);
+  localStorage.setItem("lihobaronPi", currentPi - 20);
+  renderPiBalance();
+
+  alert("✅ Farm Boost aktivován! +4 pole na 24 hodin.");
+
+  loadGame();
+  renderFarm();
+}
+
+
+
+function updateGrow() {
+  let changed = false;
+  plots.forEach((plot, i) => {
+    if (plot.crop && plot.growing) {
+      const t = Math.floor((Date.now() - plot.startTime) / 1000);
+      if (plot.grow < cropsData[plot.crop].growTime) {
+        plot.grow = Math.min(t, cropsData[plot.crop].growTime);
+        if (plot.grow >= cropsData[plot.crop].growTime) {
+          plot.growing = false;
+        }
+        changed = true;
+      }
+    }
+  });
+  if (changed) {
+    saveGame();
+    renderFarm();
+    updateStorageBar();
+  }
+}
+setInterval(updateGrow, 1000);
+setInterval(updateBoostTimer, 1000);
+
+window.onload = function() {
+  loadGame();             // ← MUSÍ BÝT PRVNÍ
+  renderPiBalance();
+  stavPrachy();
+  renderFarm();
+  updateStorageBar();
+  updateXPBar();
+};
+
+
+</script>
+
+<!-- Počítadlo návštěv pomocí Statcounter -->
+<div style="
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  z-index: 9999;
+">
+  <img src="https://c.statcounter.com/13143945/0/92336d94/1/"
+       alt="návštěvy" style="height: 18px;" />
+</div>
+
+<script type="text/javascript">
+  var sc_project = 13143945;
+  var sc_invisible = 0;
+  var sc_security = "92336d94";
+</script>
+<script type="text/javascript"
+  src="https://www.statcounter.com/counter/counter.js"
+  async></script>
+<noscript>
+  <div class="statcounter">
+    <a title="web statistics" href="https://statcounter.com/" target="_blank">
+      <img class="statcounter" src="https://c.statcounter.com/13143945/0/92336d94/1/"
+        alt="web statistics" referrerPolicy="no-referrer-when-downgrade">
+    </a>
+  </div>
+</noscript>
+
+</body>
+</html>
