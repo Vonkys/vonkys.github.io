@@ -7,15 +7,8 @@
   <link rel="icon" href="favicon.ico" type="image/x-icon" />
   <meta name="theme-color" content="#208278">
   
-  <!-- PI SDK + init -->
-  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-  <script>
-    if (window.Pi) {
-      Pi.init({ version: "2.0" });
-    } else {
-      console.warn("Pi SDK nebyl načten!");
-    }
-  </script>
+ <!-- PI SDK -->
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
 
   <style>
     /* --- styly beze změn --- */
@@ -208,39 +201,54 @@
  
   
  
-window.addEventListener("DOMContentLoaded", function () {
-  const loginBtn = document.getElementById("btn-pi-login");
 
-  if (loginBtn) {
-    loginBtn.onclick = function () {
-      alert("Kliknuto na přihlášení");
+  window.addEventListener("DOMContentLoaded", function () {
+    const piUserKey = "piUser";
 
-      if (!window.Pi) {
-        alert("Pi SDK není načtený. Otevři v Pi Browseru.");
-        return;
+    function showPiLogin() {
+      const wrap = document.getElementById("pi-login-wrap");
+      const username = localStorage.getItem(piUserKey);
+      if (username) {
+        wrap.innerHTML =
+          "<div style='color:#208278;font-weight:bold;font-size:1.07em;'>✅ Přihlášen jako: " +
+          username +
+          "</div>";
       }
+    }
 
-      Pi.init({ version: "2.0" });
-      console.log("✅ Pi.init zavolán");
+    const loginBtn = document.getElementById("btn-pi-login");
 
-      const onIncompletePaymentFound = (payment) => {
-        console.log("🔁 Neúplná platba:", payment);
-      };
+    if (loginBtn) {
+      loginBtn.onclick = function () {
+        alert("Kliknuto na přihlášení");
 
-      try {
+        if (!window.Pi) {
+          alert("⚠ Pi SDK není načtený. Otevři v Pi Browseru.");
+          return;
+        }
+
+        Pi.init({ version: "2.0" });
+        console.log("✅ Pi.init zavolán");
+
+        const onIncompletePaymentFound = (payment) => {
+          console.log("🔁 Neúplná platba:", payment);
+        };
+
         Pi.authenticate(["username"], onIncompletePaymentFound)
           .then(function (user) {
-            alert("✅ Přihlášen jako: " + user.username);
+            const username = user && user.username ? user.username : "neznámý";
+            localStorage.setItem(piUserKey, username);
+            alert("✅ Přihlášen jako: " + username);
+            showPiLogin();
           })
           .catch(function (err) {
             alert("❌ Chyba přihlášení: " + err.message);
           });
-      } catch (e) {
-        alert("❗ Chyba: " + e.message);
-      }
-    };
-  }
-});
+      };
+    }
+
+    showPiLogin();
+  });
 </script>
 
 
