@@ -247,34 +247,39 @@
       };
     }
 
-    function setupPaymentButton() {
-      const payBtn = document.getElementById("btn-pi-pay");
-      if (!payBtn) return;
+   function setupPaymentButton() {
+  const payBtn = document.getElementById("btn-pi-pay");
+  if (!payBtn) return;
 
-      payBtn.onclick = function () {
-        Pi.createPayment({
-          amount: 1,
-          memo: "Test platba pro schválení appky",
-          metadata: { purpose: "test" }
-        }, {
-          onReadyForServerApproval: function (paymentId) {
-            console.log("✅ Payment připraven pro server approval:", paymentId);
-          },
-          onReadyForServerCompletion: function (paymentId, txid) {
-            console.log("✅ Payment připraven na dokončení:", paymentId, txid);
-          },
-          onCancel: function (paymentId) {
-            alert("❌ Platba zrušena: " + paymentId);
-          },
-          onError: function (err) {
-            alert("❌ Chyba při platbě: " + err.message);
-          }
-        });
-      };
+  payBtn.onclick = function () {
+    if (!window.Pi) {
+      alert("⚠ Pi SDK není načtený!");
+      return;
     }
 
-    showPiLogin();
-  });
+    Pi.createPayment({
+      amount: 1,
+      memo: "Test platba pro schválení appky",
+      metadata: { purpose: "test" }
+    }, {
+      onReadyForServerApproval: function (paymentId) {
+        console.log("✅ Payment připraven pro server approval:", paymentId);
+        Pi.approvePayment(paymentId); // <<< TADY se to potvrzuje
+      },
+      onReadyForServerCompletion: function (paymentId, txid) {
+        console.log("✅ Payment připraven na dokončení:", paymentId, txid);
+        Pi.completePayment(paymentId); // <<< TADY se to dokončuje
+        alert("✅ Platba úspěšně odeslána!");
+      },
+      onCancel: function (paymentId) {
+        alert("❌ Platba zrušena: " + paymentId);
+      },
+      onError: function (err) {
+        alert("❌ Chyba při platbě: " + err.message);
+      }
+    });
+  };
+}
 </script>
 
 
