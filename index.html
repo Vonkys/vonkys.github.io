@@ -196,12 +196,8 @@
   </div>
 </div>
 
-<!-- ZBYTEK SCRIPTS -->
-<!-- Pi SDK -->
-<script src="https://sdk.minepi.com/pi-sdk.js"></script>
 <script>
   Pi.init({ version: "2.0" });
-
   const piUserKey = "piUser";
 
   async function verifyUserOnBackend(accessToken) {
@@ -211,13 +207,14 @@
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ accessToken }),
+        body: JSON.stringify({ accessToken: accessToken }),
       });
 
       const data = await response.json();
       if (data.username) {
         localStorage.setItem(piUserKey, data.username);
-        document.getElementById("pi-login-wrap").innerHTML = `<div style="color:#208278;font-weight:bold;">✅ Přihlášen jako: ${data.username}</div>`;
+        document.getElementById("pi-login-wrap").innerHTML = 
+          "<div style='color:#208278;font-weight:bold;'>✅ Přihlášen jako: " + data.username + "</div>";
       } else {
         alert("⚠ Backend nevrátil uživatele.");
       }
@@ -226,11 +223,11 @@
     }
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("DOMContentLoaded", function () {
     const loginBtn = document.getElementById("btn-pi-login");
     if (!loginBtn) return;
 
-    loginBtn.addEventListener("click", async () => {
+    loginBtn.addEventListener("click", async function () {
       if (!window.Pi) {
         alert("⚠ Pi SDK není načtený. Otevři v Pi Browseru.");
         return;
@@ -238,7 +235,7 @@
 
       try {
         const scopes = ["username"];
-        const onIncompletePaymentFound = (payment) => {
+        const onIncompletePaymentFound = function (payment) {
           console.log("🔁 Neúplná platba:", payment);
         };
 
@@ -253,20 +250,19 @@
       }
     });
 
-    // Při načtení stránky
     const user = localStorage.getItem(piUserKey);
     if (user) {
-      document.getElementById("pi-login-wrap").innerHTML = `<div style="color:#208278;font-weight:bold;">✅ Přihlášen jako: ${user}</div>`;
+      document.getElementById("pi-login-wrap").innerHTML = 
+        "<div style='color:#208278;font-weight:bold;'>✅ Přihlášen jako: " + user + "</div>";
     }
   });
- function resetGame() {
+
+  function resetGame() {
     if (confirm("Are you sure you want to reset the game? All data will be wiped.")) {
       localStorage.clear();
       location.reload();
     }
   }
 </script>
-
-
 </body>
 </html>
